@@ -21,3 +21,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "quicktrim-android"
 include(":app")
+include(":common:network")
+include(":common:utility")
+include(":demo:transcription_api_demo")
