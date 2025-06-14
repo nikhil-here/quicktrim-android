@@ -19,3 +19,5 @@ This application is still a work in progress. I'm actively working on code clean
 - [ ] Resiliency: Handling errors gracefully and adding fallbacks for audio extraction, transcription generation, and trimming failures
 - [ ] Background Services: Using foreground services for long-running tasks to allow users to leave or close the app while operations continue in the background
 - [ ] Large Media File Handling: Optimizing chunking and processing of large media files to prevent crashes or stalled operations
+
+<img src="https://github.com/user-attachments/assets/168537ed-0bc8-4090-b0ee-2372e8e8ebab" alt="QuickTrim" width="1280"/>
