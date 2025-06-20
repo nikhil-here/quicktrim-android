@@ -1,6 +1,6 @@
 package com.quicktrim.ai.ui.common
 
-import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Done
@@ -13,7 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.quicktrim.MainViewModel
@@ -39,7 +39,9 @@ fun QuickTrimAppBar(
         modifier = modifier,
         title = {
             Text(
-                text = backStackEntry?.destination?.route.toAppBarTitle()
+                text = backStackEntry?.destination?.route.toAppBarTitle(),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
             )
         },
         navigationIcon = {

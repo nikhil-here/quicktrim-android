@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
@@ -31,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
@@ -139,17 +141,24 @@ fun UploadScreenUi(
             style = MaterialTheme.typography.displayLarge,
             textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = stringResource(R.string.app_description),
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center
+            text = stringResource(R.string.app_description_one_liner),
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = 16.sp
         )
-        Spacer(modifier = Modifier.height(18.dp))
+        Spacer(modifier = Modifier.height(32.dp))
         FloatingActionButton(
-            onClick = onUploadClick
+            onClick = onUploadClick,
+            modifier = Modifier.size(56.dp)
         ) {
-            Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.cd_upload_cta))
+            Icon(
+                modifier = Modifier.size(32.dp),
+                imageVector = Icons.Filled.Add,
+                contentDescription = stringResource(R.string.cd_upload_cta)
+            )
         }
     }
 }

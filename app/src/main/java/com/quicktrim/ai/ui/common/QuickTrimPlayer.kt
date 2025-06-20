@@ -28,7 +28,9 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Replay5
 import androidx.compose.material.icons.filled.VolumeOff
 import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.outlined.Forward5
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -134,27 +136,6 @@ fun QuickTrimPlayer(
             }
 
             androidx.compose.animation.AnimatedVisibility(
-                visible = controlsVisible, enter = fadeIn(), exit = fadeOut()
-            ) {
-                Box(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    IconButton(
-                        onClick = toggleMuteUnMute, modifier = Modifier.background(
-                            MaterialTheme.colorScheme.secondary,
-                            shape = CircleShape
-                        )
-                    ) {
-                        Icon(
-                            imageVector = if (isMuted) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
-                            contentDescription = "isMuted $isMuted",
-                            tint = MaterialTheme.colorScheme.onSecondary
-                        )
-                    }
-                }
-            }
-
-            androidx.compose.animation.AnimatedVisibility(
                 modifier = Modifier.align(Alignment.Center),
                 visible = controlsVisible,
                 enter = fadeIn(),
@@ -241,6 +222,7 @@ fun QuickTrimPlayer(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun QuickTrimPrimaryControl(
     modifier: Modifier = Modifier,
@@ -252,48 +234,66 @@ fun QuickTrimPrimaryControl(
     val playPauseIcon = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceAround,
+        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(
-            onClick = onRewind, colors = IconButtonDefaults.iconButtonColors(
-                containerColor = MaterialTheme.colorScheme.secondary
-            ), shape = RoundedCornerShape(4.dp)
+        FilledIconButton(
+            modifier = Modifier.size(IconButtonDefaults.mediumContainerSize()),
+            onClick = onRewind,
+            colors =  IconButtonDefaults.filledIconButtonColors(),
+            shape = IconButtonDefaults.mediumRoundShape
         ) {
             Icon(
+                modifier = Modifier.size(IconButtonDefaults.mediumIconSize),
                 imageVector = Icons.Filled.Replay5,
                 contentDescription = stringResource(R.string.cd_rewind),
-                tint = MaterialTheme.colorScheme.onSecondary
             )
         }
-        IconButton(
-            modifier = Modifier.size(84.dp),
+        Spacer(modifier = Modifier.width(16.dp))
+        FilledIconButton(
+            modifier = Modifier.size(IconButtonDefaults.largeContainerSize()),
             onClick = onPlayPause,
-            colors = IconButtonDefaults.iconButtonColors(
-                containerColor = MaterialTheme.colorScheme.primary
-            ),
-            shape = RoundedCornerShape(4.dp)
+            shape = IconButtonDefaults.extraLargeSquareShape,
+            colors = IconButtonDefaults.filledIconButtonColors()
         ) {
             Icon(
+                modifier = Modifier.size(IconButtonDefaults.extraLargeIconSize),
                 imageVector = playPauseIcon,
                 contentDescription = stringResource(R.string.cd_play_pause),
-                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
-        IconButton(
-            onClick = onForward, colors = IconButtonDefaults.iconButtonColors(
-                containerColor = MaterialTheme.colorScheme.secondary
-            ), shape = RoundedCornerShape(4.dp)
+        Spacer(modifier = Modifier.width(16.dp))
+        FilledIconButton(
+            modifier = Modifier.size(IconButtonDefaults.mediumContainerSize()),
+            onClick = onForward,
+            colors =  IconButtonDefaults.filledIconButtonColors(),
+            shape = IconButtonDefaults.mediumRoundShape
         ) {
             Icon(
-                imageVector = Icons.Filled.Forward5,
-                contentDescription = stringResource(R.string.cd_forward),
-                tint = MaterialTheme.colorScheme.onSecondary
+                modifier = Modifier.size(IconButtonDefaults.mediumIconSize),
+                imageVector = Icons.Outlined.Forward5,
+                contentDescription = stringResource(R.string.cd_rewind),
             )
         }
     }
 }
 
+
+@Preview
+@Composable
+private fun PreviewPrimaryControls() {
+    val context = LocalContext.current
+    QuicktrimandroidTheme {
+        QuickTrimPrimaryControl(
+            modifier = Modifier
+                .fillMaxWidth(),
+            onForward = {},
+            onRewind = {},
+            onPlayPause = {},
+            isPlaying = true
+        )
+    }
+}
 
 @Preview
 @Composable

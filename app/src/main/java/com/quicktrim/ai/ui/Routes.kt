@@ -15,7 +15,7 @@ sealed class Routes(val path: String) {
 
 fun String?.toAppBarTitle() : String {
     return when(this) {
-        Routes.Upload.path -> "Upload Media"
+        Routes.Upload.path -> "Home"
         Routes.Edit.path -> "Trim Media"
         Routes.Export.path -> "Export Media"
         else -> "QuickTrim"
