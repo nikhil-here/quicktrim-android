@@ -1,5 +1,6 @@
 package com.quicktrim.ai.ui.common
 
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.animation.fadeIn
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.filled.Replay5
 import androidx.compose.material.icons.filled.VolumeOff
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -58,6 +60,8 @@ import com.quicktrim.ai.ui.theme.QuicktrimandroidTheme
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+private const val TAG = "QuickTrimPlayer"
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -113,13 +117,18 @@ fun QuickTrimPlayer(
                     }, modifier = Modifier
                         .then(
                             if (expandedMode) {
-                                Modifier.fillMaxWidth()
+                                Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(aspectRatio.coerceAtLeast(0f))
                             } else {
-                                Modifier.height(240.dp)
+                                Log.i(TAG, "QuickTrimPlayer: aspectRatio $aspectRatio")
+                                Modifier
+                                    .height(240.dp)
+                                    .aspectRatio(aspectRatio.coerceAtLeast(0.1f))
                             }
                         )
                         .background(MaterialTheme.colorScheme.scrim)
-                        .aspectRatio(aspectRatio.coerceAtLeast(0f))
+
                         .align(Alignment.Center)
                 )
             }
@@ -209,14 +218,10 @@ fun QuickTrimPlayer(
         }
 
         Spacer(modifier = Modifier.height(6.dp))
-        Box(
+        HorizontalDivider(
             modifier = Modifier
                 .width(100.dp)
-                .height(6.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.onSurface,
-                    shape = RoundedCornerShape(6.dp)
-                )
+                .clip(RoundedCornerShape(6.dp))
                 .pointerInput(true) {
                     detectVerticalDragGestures(
                         onDragEnd = {
@@ -230,7 +235,8 @@ fun QuickTrimPlayer(
                 .combinedClickable(
                     enabled = true,
                     onClick = toggleExpandMode
-                )
+                ),
+            thickness = 6.dp
         )
     }
 }

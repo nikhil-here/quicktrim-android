@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.Timeline
 import androidx.media3.common.VideoSize
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
@@ -24,6 +25,7 @@ import com.quicktrim.ai.transformer.toMs
 import com.quicktrim.ai.ui.Constants
 import com.quicktrim.ai.ui.common.MultiMediaSeekbarController
 import com.quicktrim.ai.ui.common.QuickTrimProcessState
+import com.quicktrim.ai.ui.common.TranscriptionViewMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -81,15 +83,17 @@ class MainViewModel @Inject constructor(
     )
     val segmentedJsonFormatResponse = _segmentedJsonFormatResponse.asStateFlow()
 
+    private val _transcriptionViewMode = MutableStateFlow(TranscriptionViewMode.PARAGRAPH)
+    val transcriptionViewMode = _transcriptionViewMode.asStateFlow()
+
     private val _fillerWords = MutableStateFlow(setOf<String>())
     val fillerWords = _fillerWords.asStateFlow()
 
     private val _expandedMode = MutableStateFlow(true)
     val expandedMode = _expandedMode.asStateFlow()
 
-
     private var mediaUri: Uri? = null
-    private var originalMediaDuration: Long? = null
+    var originalMediaDuration: Long? = null
     private var controller: MultiMediaSeekbarController? = null
 
     private val onProgressUpdate = { progress: Long, duration: Long ->
@@ -99,7 +103,17 @@ class MainViewModel @Inject constructor(
 
     private val playerListener = object : Player.Listener {
         override fun onVideoSizeChanged(videoSize: VideoSize) {
-            _aspectRatio.update { videoSize.width / videoSize.height.toFloat() }
+            Log.i(TAG, "onVideoSizeChanged: videoSize $videoSize")
+            if (videoSize.width == 0 || videoSize.height == 0) return
+            val ratio =(videoSize.width / videoSize.height.toFloat()).coerceAtLeast(0.1f)
+            Log.i(TAG, "onVideoSizeChanged aspectRatio: $ratio")
+            _aspectRatio.update { ratio }
+        }
+
+        override fun onTimelineChanged(timeline: Timeline, reason: Int) {
+            if (originalMediaDuration == null) {
+                originalMediaDuration = exoPlayer?.duration ?: 0L
+            }
         }
 
         override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -232,7 +246,7 @@ class MainViewModel @Inject constructor(
             _processState.update {
                 QuickTrimProcessState.Indefinite(
                     title = "Generating Transcription",
-                    message = Constants.GENERIC_WAIT_MSG
+                    message = null
                 )
             }
 
@@ -244,6 +258,7 @@ class MainViewModel @Inject constructor(
                 when (response) {
                     is QuickTrimResponse.Success<SegmentedJsonFormatResponse> -> {
                         _segmentedJsonFormatResponse.update { response.body }
+                        _expandedMode.update { false }
                     }
 
                     else -> {
@@ -436,6 +451,44 @@ class MainViewModel @Inject constructor(
         playTrimVideoPreview()
     }
 
+    fun onRemoveOrAddWordResponse(removedWord: WordResponse) {
+        _segmentedJsonFormatResponse.update { response ->
+            response.copy(
+                segmentResponses = response.segmentResponses.map { segment ->
+                    segment.copy(
+                        wordResponses = segment.wordResponses.map { word ->
+                            if (word == removedWord) {
+                                word.copy(isRemoved = !word.isRemoved)
+                            } else {
+                                word
+                            }
+                        }
+                    )
+                }
+            )
+        }
+        playTrimVideoPreview()
+    }
+
+    fun onAddWordResponse(removedWord: WordResponse) {
+        _segmentedJsonFormatResponse.update { response ->
+            response.copy(
+                segmentResponses = response.segmentResponses.map { segment ->
+                    segment.copy(
+                        wordResponses = segment.wordResponses.map { word ->
+                            if (word == removedWord) {
+                                word.copy(isRemoved = false)
+                            } else {
+                                word
+                            }
+                        }
+                    )
+                }
+            )
+        }
+        playTrimVideoPreview()
+    }
+
     fun onAddFillerWord(fillerWord: String) {
         Log.i(TAG, "onAddFillerWord: $fillerWord")
         _fillerWords.update {
@@ -461,6 +514,10 @@ class MainViewModel @Inject constructor(
             )
         }
         playTrimVideoPreview()
+    }
+
+    fun onTranscriptionViewModelChange(mode: TranscriptionViewMode) {
+        _transcriptionViewMode.update { mode }
     }
 
     fun onExportScreenBackClick() {

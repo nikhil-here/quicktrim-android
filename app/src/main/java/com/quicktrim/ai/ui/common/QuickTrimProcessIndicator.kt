@@ -9,7 +9,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.TaskAlt
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.LoadingIndicatorDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,6 +47,7 @@ sealed class QuickTrimProcessState(
 }
 
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun QuickTrimProcessIndicator(
     modifier: Modifier = Modifier,
@@ -53,12 +57,12 @@ fun QuickTrimProcessIndicator(
         Row(
             modifier = modifier,
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.SpaceAround
         ) {
             when (state) {
                 is QuickTrimProcessState.Definite -> {
-                    CircularProgressIndicator(
-                        progress = { state.progress }
+                    LoadingIndicator(
+                        polygons = LoadingIndicatorDefaults.DeterminateIndicatorPolygons
                     )
                 }
 
@@ -71,14 +75,15 @@ fun QuickTrimProcessIndicator(
                 }
 
                 else -> {
-                    CircularProgressIndicator()
+                    LoadingIndicator(
+                        polygons = LoadingIndicatorDefaults.DeterminateIndicatorPolygons,
+                    )
                 }
             }
-            Spacer(Modifier.width(12.dp))
             Column(modifier = modifier) {
                 Text(
                     text = state.processTitle.orEmpty(),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyLarge
                 )
                 if (!state.processMessage.isNullOrEmpty()) {
                     Spacer(Modifier.height(2.dp))
@@ -87,6 +92,7 @@ fun QuickTrimProcessIndicator(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
+                Spacer(modifier = Modifier.height(6.dp))
             }
         }
     }

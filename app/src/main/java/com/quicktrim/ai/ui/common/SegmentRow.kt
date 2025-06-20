@@ -9,12 +9,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddBox
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.quicktrim.ai.network.model.SegmentResponse
@@ -48,28 +53,22 @@ fun SegmentRow(
     }
 
     val annotatedText = buildAnnotatedString {
-        var startIndex = 0
         segmentResponse.wordResponses.forEach {
-            append(it.text)
-            if (it.isRemoved || segmentResponse.isRemoved) {
-                addStyle(
-                    style = SpanStyle(textDecoration = TextDecoration.LineThrough),
-                    start = startIndex,
-                    end = startIndex + it.text.length
-                )
+            withStyle(
+                style = if (it.isRemoved || segmentResponse.isRemoved) {
+                    SpanStyle(textDecoration = TextDecoration.LineThrough, color = MaterialTheme.colorScheme.error)
+                } else {
+                    SpanStyle(textDecoration = TextDecoration.None)
+                },
+            ) {
+                append(it.text)
             }
-            startIndex += it.text.length
         }
     }
 
     Row(
         modifier = Modifier
-            .fillMaxWidth()
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                shape = RoundedCornerShape(4.dp)
-            ),
+            .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -82,12 +81,12 @@ fun SegmentRow(
         ) {
             Text(
                 text = annotatedText,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyLarge,
             )
             Spacer(Modifier.height(4.dp))
             Text(
                 "$start - $end",
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.labelMedium,
             )
         }
 
@@ -97,24 +96,28 @@ fun SegmentRow(
                 IconButton(
                     onClick = {
                         add(segmentResponse)
-                    }
+                    },
+                    colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.tertiary),
+                    shape = CircleShape
                 ) {
                     Icon(
-                        imageVector = Icons.Default.AddBox,
+                        imageVector = Icons.Filled.Add,
                         contentDescription = "Add Segment",
-                        tint = Color.Green
+                        tint = MaterialTheme.colorScheme.onTertiary
                     )
                 }
             } else {
                 IconButton(
                     onClick = {
                         remove(segmentResponse)
-                    }
+                    },
+                    colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.tertiary),
+                    shape = CircleShape
                 ) {
                     Icon(
-                        imageVector = Icons.Default.RemoveCircle,
+                        imageVector = Icons.Filled.Remove,
                         contentDescription = "Remove Segment",
-                        tint = Color.Red
+                        tint = MaterialTheme.colorScheme.onTertiary
                     )
                 }
             }

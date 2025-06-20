@@ -7,4 +7,5 @@
     <string name="cd_forward">Forward</string>
     <string name="cd_rewind">Rewind</string>
     <string name="cd_export">Export Trimmed Media</string>
+    <string name="cd_filler_words">Add Fillers Words</string>
 </resources>
