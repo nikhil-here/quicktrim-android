@@ -77,7 +77,7 @@ fun EditScreen(
                 isMuted = isMuted,
                 expandedMode = expandedMode,
                 isPlaying = isPlaying,
-                progress = progress,
+                progress = { progress },
                 totalDuration = totalDuration,
                 playerView = { playerView },
                 toggleMuteUnMute = {

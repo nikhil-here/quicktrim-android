@@ -65,7 +65,7 @@ fun ExportScreen(
                 modifier = Modifier.fillMaxWidth(),
                 isPlaying = isPlaying,
                 isMuted = isMuted,
-                progress = progress,
+                progress = { progress },
                 totalDuration = totalDuration,
                 playerView = { playerView },
                 toggleMuteUnMute = {
