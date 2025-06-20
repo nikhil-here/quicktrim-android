@@ -12,3 +12,12 @@ sealed class Routes(val path: String) {
          const val ARG_URI = "arg_uri"
     }
 }
+
+fun String?.toAppBarTitle() : String {
+    return when(this) {
+        Routes.Upload.path -> "Upload Media"
+        Routes.Edit.path -> "Trim Media"
+        Routes.Export.path -> "Export Media"
+        else -> "QuickTrim"
+    }
+}

@@ -2,4 +2,9 @@
     <string name="app_name">QuickTrim</string>
     <string name="app_description">Transcription Based Video Trimmer</string>
     <string name="cd_upload_cta">Pick Media</string>
+    <string name="cd_navigation_cta">Back</string>
+    <string name="cd_play_pause">Toggle Play Pause</string>
+    <string name="cd_forward">Forward</string>
+    <string name="cd_rewind">Rewind</string>
+    <string name="cd_export">Export Trimmed Media</string>
 </resources>

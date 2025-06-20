@@ -42,6 +42,9 @@ fun ExportScreen(
     navController: NavController
 ) {
     val isMuted by mainViewModel.isMuted.collectAsStateWithLifecycle()
+    val isPlaying by mainViewModel.isPlaying.collectAsStateWithLifecycle()
+    val aspectRatio by mainViewModel.aspectRatio.collectAsStateWithLifecycle()
+    val expandedMode by mainViewModel.expandedMode.collectAsStateWithLifecycle()
     val progress by mainViewModel.progress.collectAsStateWithLifecycle()
     val totalDuration by mainViewModel.totalDuration.collectAsStateWithLifecycle()
     val playerView by mainViewModel.playerView.collectAsStateWithLifecycle()
@@ -60,12 +63,27 @@ fun ExportScreen(
         ) {
             QuickTrimPlayer(
                 modifier = Modifier.fillMaxWidth(),
+                isPlaying = isPlaying,
                 isMuted = isMuted,
                 progress = progress,
                 totalDuration = totalDuration,
                 playerView = { playerView },
                 toggleMuteUnMute = {
                     mainViewModel.toggleMuteUnMute()
+                },
+                onRewind = {
+                    mainViewModel.onRewind()
+                },
+                onForward = {
+                    mainViewModel.onForward()
+                },
+                onPlayPause = {
+                    mainViewModel.onTogglePlayPause()
+                },
+                aspectRatio = aspectRatio,
+                expandedMode = expandedMode,
+                toggleExpandMode = {
+                    mainViewModel.toggleExpandMode()
                 }
             )
             Spacer(Modifier.height(12.dp))

@@ -1,5 +1,6 @@
 package com.quicktrim.ai.ui.edit
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,7 @@ import com.quicktrim.ai.ui.common.QuickTrimErrorDialog
 import com.quicktrim.ai.ui.common.QuickTrimPlayer
 import com.quicktrim.ai.ui.common.QuickTrimProcessIndicator
 import com.quicktrim.ai.ui.common.SegmentRow
+import kotlin.math.exp
 import kotlin.system.exitProcess
 
 @Composable
@@ -44,8 +46,11 @@ fun EditScreen(
     navController: NavController,
     mainViewModel: MainViewModel
 ) {
+    val expandedMode by mainViewModel.expandedMode.collectAsStateWithLifecycle()
     val isMuted by mainViewModel.isMuted.collectAsStateWithLifecycle()
+    val isPlaying by mainViewModel.isPlaying.collectAsStateWithLifecycle()
     val progress by mainViewModel.progress.collectAsStateWithLifecycle()
+    val aspectRatio by mainViewModel.aspectRatio.collectAsStateWithLifecycle()
     val totalDuration by mainViewModel.totalDuration.collectAsStateWithLifecycle()
     val playerView by mainViewModel.playerView.collectAsStateWithLifecycle()
     val processState by mainViewModel.processState.collectAsStateWithLifecycle()
@@ -53,7 +58,9 @@ fun EditScreen(
     val segmentJsonFormatResponse by mainViewModel.segmentedJsonFormatResponse.collectAsStateWithLifecycle()
 
     Box(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
+            .animateContentSize()
     ) {
         Column(
             modifier = Modifier
@@ -68,11 +75,26 @@ fun EditScreen(
             QuickTrimPlayer(
                 modifier = Modifier.fillMaxWidth(),
                 isMuted = isMuted,
+                expandedMode = expandedMode,
+                isPlaying = isPlaying,
                 progress = progress,
                 totalDuration = totalDuration,
                 playerView = { playerView },
                 toggleMuteUnMute = {
                     mainViewModel.toggleMuteUnMute()
+                },
+                aspectRatio = aspectRatio,
+                onRewind = {
+                    mainViewModel.onRewind()
+                },
+                onForward = {
+                    mainViewModel.onForward()
+                },
+                onPlayPause = {
+                    mainViewModel.onTogglePlayPause()
+                },
+                toggleExpandMode = {
+                    mainViewModel.toggleExpandMode()
                 }
             )
             Spacer(Modifier.height(12.dp))
@@ -142,30 +164,5 @@ fun EditScreen(
                 onDismissRequest = {}
             )
         }
-
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(end = 6.dp, top = 6.dp)
-        ) {
-            IconButton(
-                onClick = {
-                    mainViewModel.export()
-                    navController.navigate(Routes.Export.path)
-                },
-                modifier = Modifier.background(
-                    color = MaterialTheme.colorScheme.onSurface.copy(
-                        alpha = 0.5f
-                    ), shape = CircleShape
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Done,
-                    contentDescription = "Export"
-                )
-            }
-        }
-
     }
 }

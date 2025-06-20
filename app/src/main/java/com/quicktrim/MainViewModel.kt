@@ -6,8 +6,10 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.VideoSize
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import com.quicktrim.ai.network.TranscriptionRepository
@@ -53,6 +55,9 @@ class MainViewModel @Inject constructor(
     private val _isMuted = MutableStateFlow(false)
     val isMuted = _isMuted.asStateFlow()
 
+    private val _isPlaying = MutableStateFlow(false)
+    val isPlaying = _isPlaying.asStateFlow()
+
     private val _progress = MutableStateFlow(0L)
     val progress = _progress.asStateFlow()
 
@@ -68,6 +73,9 @@ class MainViewModel @Inject constructor(
     private val _error = MutableStateFlow<QuickTrimResponse.UnknownError?>(null)
     val error = _error.asStateFlow()
 
+    private val _aspectRatio = MutableStateFlow<Float>(9 / 16f)
+    val aspectRatio = _aspectRatio.asStateFlow()
+
     private val _segmentedJsonFormatResponse = MutableStateFlow(
         SegmentedJsonFormatResponse(segmentResponses = emptyList())
     )
@@ -75,6 +83,9 @@ class MainViewModel @Inject constructor(
 
     private val _fillerWords = MutableStateFlow(setOf<String>())
     val fillerWords = _fillerWords.asStateFlow()
+
+    private val _expandedMode = MutableStateFlow(true)
+    val expandedMode = _expandedMode.asStateFlow()
 
 
     private var mediaUri: Uri? = null
@@ -86,6 +97,16 @@ class MainViewModel @Inject constructor(
         _totalDuration.update { duration }
     }
 
+    private val playerListener = object : Player.Listener {
+        override fun onVideoSizeChanged(videoSize: VideoSize) {
+            _aspectRatio.update { videoSize.width / videoSize.height.toFloat() }
+        }
+
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+            _isPlaying.update { isPlaying }
+        }
+    }
+
     fun onUriSelected(uri: Uri) {
         Log.i(TAG, "onUriSelected: uri $uri")
         mediaUri = uri
@@ -94,6 +115,7 @@ class MainViewModel @Inject constructor(
         exoPlayer = ExoPlayer.Builder(context).build().apply {
             playWhenReady = true
             repeatMode = Player.REPEAT_MODE_ALL
+            addListener(playerListener)
         }
         controller = exoPlayer?.let {
             MultiMediaSeekbarController(
@@ -126,6 +148,33 @@ class MainViewModel @Inject constructor(
             _isMuted.update { true }
         }
     }
+
+    fun onForward() {
+        val currentPosition = exoPlayer?.currentPosition ?: 0L
+        val duration = exoPlayer?.duration ?: C.TIME_UNSET
+        val target = minOf(currentPosition + 5000L, duration)
+        exoPlayer?.seekTo(target)
+    }
+
+    fun onRewind() {
+        val currentPosition = exoPlayer?.currentPosition ?: 0L
+        val target = maxOf(currentPosition - 5000L, 0L)
+        exoPlayer?.seekTo(target)
+    }
+
+    fun onTogglePlayPause() {
+        Log.i(TAG, "toggleMuteUnMute: current volume ${exoPlayer?.volume}")
+        if (exoPlayer?.isPlaying == true) {
+            exoPlayer?.pause()
+        } else {
+            exoPlayer?.play()
+        }
+    }
+
+    fun toggleExpandMode() {
+        _expandedMode.update { !it }
+    }
+
 
     fun setMediaItem(mediaItem: List<MediaItem>) {
         exoPlayer?.setMediaItems(mediaItem)
