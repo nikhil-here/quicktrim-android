@@ -21,6 +21,7 @@ hiltNavigationFragment = "1.2.0"
 kotlinxCoroutinesAndroid = "1.10.1"
 navigation = "2.9.0"
 accompanist = "0.33.2-alpha"
+googlefont = "1.8.2"
 
 
 
@@ -61,6 +62,7 @@ androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-com
 androidx-hilt-navigation-fragment = { module = "androidx.hilt:hilt-navigation-fragment", version.ref = "hiltNavigationFragment" }
 androidx-navigaiton = { group = "androidx.navigation", name = "navigation-compose",  version.ref = "navigation" }
 accompanist-navigation = { group = "com.google.accompanist", name = "accompanist-navigation-material", version.ref = "accompanist" }
+androidx-google-font = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "googlefont" }
 
 
 

@@ -94,4 +94,8 @@ dependencies {
     //accompanist
     implementation(libs.accompanist.navigation)
 
+    //Google Fonts
+    implementation(libs.androidx.google.font)
+
+
 }

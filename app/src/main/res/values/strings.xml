@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">quicktrim-android</string>
+    <string name="app_name">QuickTrim</string>
+    <string name="app_description">Transcription Based Video Trimmer</string>
+    <string name="cd_upload_cta">Pick Media</string>
 </resources>
