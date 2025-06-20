@@ -1,6 +1,9 @@
 package com.quicktrim.ai.ui.export
 
-import androidx.compose.foundation.background
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,31 +12,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.quicktrim.MainViewModel
 import com.quicktrim.ai.ui.Constants
-import com.quicktrim.ai.ui.Routes
 import com.quicktrim.ai.ui.common.QuickTrimErrorDialog
 import com.quicktrim.ai.ui.common.QuickTrimPlayer
 import com.quicktrim.ai.ui.common.QuickTrimProcessIndicator
-import com.quicktrim.ai.ui.common.SegmentRow
+import com.quicktrim.ai.ui.common.QuickTrimProcessState
+import com.quicktrim.ai.ui.common.QuickTrimSuccessDialog
 import kotlin.system.exitProcess
+
+private const val TAG = "ExportScreen"
 
 @Composable
 fun ExportScreen(
@@ -41,6 +37,7 @@ fun ExportScreen(
     mainViewModel: MainViewModel,
     navController: NavController
 ) {
+    val context = LocalContext.current
     val isMuted by mainViewModel.isMuted.collectAsStateWithLifecycle()
     val isPlaying by mainViewModel.isPlaying.collectAsStateWithLifecycle()
     val aspectRatio by mainViewModel.aspectRatio.collectAsStateWithLifecycle()
@@ -50,6 +47,13 @@ fun ExportScreen(
     val playerView by mainViewModel.playerView.collectAsStateWithLifecycle()
     val processState by mainViewModel.processState.collectAsStateWithLifecycle()
     val error by mainViewModel.error.collectAsStateWithLifecycle()
+
+    fun copyToClipboard(context: Context, label: String, text: String) {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText(label, text)
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+    }
 
     Box(
         modifier = modifier.fillMaxSize()
@@ -105,27 +109,29 @@ fun ExportScreen(
             )
         }
 
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(end = 6.dp, top = 6.dp)
-        ) {
-            IconButton(
-                onClick = {
-                    mainViewModel.onExportScreenBackClick()
-                    navController.popBackStack()
-                },
-                modifier = Modifier.background(
-                    color = MaterialTheme.colorScheme.onSurface.copy(
-                        alpha = 0.5f
-                    ), shape = CircleShape
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back"
-                )
+        when(processState) {
+            is QuickTrimProcessState.Success -> {
+                QuickTrimSuccessDialog(
+                    modifier = Modifier.fillMaxWidth(0.8f),
+                    title = processState.processTitle,
+                    message = processState.processMessage,
+                    ctaTitle = "COPY PATH",
+                    onClick = {
+                        (processState as QuickTrimProcessState.Success).outputPath?.let {
+                            copyToClipboard(
+                                context = context,
+                                label = "Trimmed Video Path",
+                                text = it
+                            )
+                        }
+                    }
+                ) { }
             }
+            else -> {}
         }
+
+
+
+
     }
 }

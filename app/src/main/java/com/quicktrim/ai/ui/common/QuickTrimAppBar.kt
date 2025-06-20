@@ -58,6 +58,7 @@ fun QuickTrimAppBar(
             if (showExportIcon) {
                 IconButton(
                     onClick = {
+                        navController.navigate(Routes.Export.path)
                         mainViewModel.export()
                     }
                 ) {

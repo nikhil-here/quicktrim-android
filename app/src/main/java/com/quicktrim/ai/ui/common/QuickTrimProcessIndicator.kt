@@ -40,7 +40,8 @@ sealed class QuickTrimProcessState(
 
     data class Success(
         val title: String,
-        val message: String?
+        val message: String?,
+        val outputPath: String? = null
     ) : QuickTrimProcessState(title, message)
 
     data object None : QuickTrimProcessState("", "")
@@ -67,11 +68,7 @@ fun QuickTrimProcessIndicator(
                 }
 
                 is QuickTrimProcessState.Success -> {
-                    Icon(
-                        imageVector = Icons.Rounded.TaskAlt,
-                        tint = Color.Green,
-                        contentDescription = "success"
-                    )
+                    //
                 }
 
                 else -> {
@@ -83,7 +80,7 @@ fun QuickTrimProcessIndicator(
             Column(modifier = modifier) {
                 Text(
                     text = state.processTitle.orEmpty(),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
                 )
                 if (!state.processMessage.isNullOrEmpty()) {
                     Spacer(Modifier.height(2.dp))

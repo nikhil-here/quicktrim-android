@@ -80,7 +80,7 @@ fun QuickTrimPlayer(
     toggleExpandMode: () -> Unit,
     aspectRatio: Float = 9 / 16f
 ) {
-    var controlsVisible by remember { mutableStateOf(true) }
+    var controlsVisible by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     var autoHideJob: Job? = null
 

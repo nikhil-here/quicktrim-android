@@ -126,6 +126,8 @@ class MainViewModel @Inject constructor(
         mediaUri = uri
         originalMediaDuration = null
         //Initialize the player
+        exoPlayer?.release()
+        exoPlayer = null
         exoPlayer = ExoPlayer.Builder(context).build().apply {
             playWhenReady = true
             repeatMode = Player.REPEAT_MODE_ALL
@@ -324,6 +326,8 @@ class MainViewModel @Inject constructor(
                 )
             }
 
+            _expandedMode.update { false }
+
             val removedSegmentsAndWords = getRemovedSegments()
 
             val result = transformer.trimVideo(
@@ -348,8 +352,9 @@ class MainViewModel @Inject constructor(
                     setMediaItem(listOf(MediaItem.fromUri(result.body.outputPath)))
                     _processState.update {
                         QuickTrimProcessState.Success(
-                            title = "Trim Completed",
-                            message = "trimmed video saved on your device"
+                            title = Constants.EXPORT_SUCCESS_TITLE,
+                            message = "${Constants.EXPORT_SUCCESS_DESCRIPTION} \n${result.body.outputPath}",
+                            outputPath = result.body.outputPath
                         )
                     }
                 }
