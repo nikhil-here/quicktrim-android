@@ -4,6 +4,7 @@ package com.quicktrim.ai.ui.common
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -56,19 +57,26 @@ fun QuickTrimSuccessDialog(
             modifier = modifier.fillMaxWidth(),
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth().align (Alignment.CenterHorizontally),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Image(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(300.dp)
-                        .clip(RoundedCornerShape(6.dp)),
-                    painter = painterResource(R.drawable.quick_trim),
-                    contentDescription = stringResource(R.string.app_name),
-                    contentScale = ContentScale.FillWidth
-                )
+                        .background(MaterialTheme.colorScheme.primary),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = stringResource(R.string.app_name),
+                        style = MaterialTheme.typography.displayLarge,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
 
                 Spacer(Modifier.height(16.dp))
 

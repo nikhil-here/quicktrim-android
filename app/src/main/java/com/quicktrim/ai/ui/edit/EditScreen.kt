@@ -4,8 +4,8 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,22 +14,25 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.LineWeight
 import androidx.compose.material.icons.filled.LinearScale
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
@@ -39,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -127,7 +131,6 @@ fun EditScreen(
                     mainViewModel.toggleExpandMode()
                 }
             )
-            Spacer(Modifier.height(12.dp))
             /**
              * Process Indicator
              */
@@ -136,42 +139,15 @@ fun EditScreen(
                 state = processState
             )
             /**
-             * Filler Words CTA
-             */
-            if (transcriptionLoaded) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(
-                        onClick = { navController.navigate(Routes.UpdateFillerWords.path) },
-                        modifier = Modifier
-                            .background(
-                                MaterialTheme.colorScheme.secondary,
-                                shape = CircleShape
-                            )
-                    ) {
-                        Icon(
-                            modifier = Modifier,
-                            imageVector = Icons.Default.Add,
-                            contentDescription = stringResource(R.string.cd_filler_words),
-                            tint = MaterialTheme.colorScheme.onSecondary
-                        )
-                    }
-                }
-                Spacer(Modifier.height(12.dp))
-            }
-
-
-            /**
              * Segments
              */
             if (!segmentJsonFormatResponse.segmentResponses.isEmpty()) {
-                when(transcriptionViewMode) {
+                when (transcriptionViewMode) {
                     TranscriptionViewMode.PARAGRAPH -> {
                         SegmentParagraph(
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(bottom = 56.dp, start = 8.dp, end = 8.dp),
                             segmentedJsonFormatResponse = segmentJsonFormatResponse,
                             progressMs = progress,
                             onRemoveOrAddWord = {
@@ -179,9 +155,16 @@ fun EditScreen(
                             },
                         )
                     }
+
                     TranscriptionViewMode.SEGMENT -> {
                         LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    color = MaterialTheme.colorScheme.surface,
+                                    shape = RoundedCornerShape(6.dp)
+                                )
+                                .padding(bottom = 56.dp),
                             state = lazyListState
                         ) {
                             items(segmentJsonFormatResponse.segmentResponses) { segment ->
@@ -202,7 +185,6 @@ fun EditScreen(
             }
         }
 
-
         error?.let {
             QuickTrimErrorDialog(
                 title = Constants.GENERIC_ERROR_MSG,
@@ -216,71 +198,90 @@ fun EditScreen(
         }
 
         if (transcriptionLoaded && !expandedMode && !lazyListState.isScrollInProgress) {
-            HorizontalFloatingToolbar(
+            Row(
                 modifier = Modifier
-                    .height(48.dp)
+                    .fillMaxWidth()
                     .align(Alignment.BottomCenter)
-                    .offset(y = (-56).dp),
-                expanded = true,
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                ToggleButton(
-                    modifier = Modifier,
-                    checked = transcriptionViewMode == TranscriptionViewMode.PARAGRAPH,
-                    onCheckedChange = {},
-                    shapes = ToggleButtonDefaults.shapes(
-                        CircleShape,
-                        CircleShape,
-                        CircleShape
-                    )
+                HorizontalFloatingToolbar(
+                    modifier = Modifier
+                        .height(48.dp),
+                    expanded = true,
                 ) {
-                    IconButton(
-                        onClick = {
-                            mainViewModel.onTranscriptionViewModelChange(
-                                TranscriptionViewMode.PARAGRAPH
-                            )
-                        },
-                        shape = CircleShape,
-                        modifier = Modifier.size(24.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.LinearScale,
-                            contentDescription = stringResource(R.string.cd_filler_words),
-                            tint = MaterialTheme.colorScheme.onSecondary,
-                            modifier = Modifier.size(24.dp)
+                    ToggleButton(
+                        modifier = Modifier,
+                        checked = transcriptionViewMode == TranscriptionViewMode.PARAGRAPH,
+                        onCheckedChange = {},
+                        shapes = ToggleButtonDefaults.shapes(
+                            CircleShape,
+                            CircleShape,
+                            CircleShape
                         )
+                    ) {
+                        IconButton(
+                            onClick = {
+                                mainViewModel.onTranscriptionViewModelChange(
+                                    TranscriptionViewMode.PARAGRAPH
+                                )
+                            },
+                            shape = CircleShape,
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.LinearScale,
+                                contentDescription = stringResource(R.string.cd_filler_words),
+                                tint = MaterialTheme.colorScheme.onSecondary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                    ToggleButton(
+                        modifier = Modifier,
+                        checked = transcriptionViewMode == TranscriptionViewMode.SEGMENT,
+                        onCheckedChange = {},
+                        shapes = ToggleButtonDefaults.shapes(
+                            CircleShape,
+                            CircleShape,
+                            CircleShape
+                        )
+                    ) {
+                        IconButton(
+                            onClick = {
+                                mainViewModel.onTranscriptionViewModelChange(
+                                    TranscriptionViewMode.SEGMENT
+                                )
+                            },
+                            shape = CircleShape,
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.LineWeight,
+                                contentDescription = stringResource(R.string.cd_filler_words),
+                                tint = MaterialTheme.colorScheme.onSecondary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
                     }
                 }
-                ToggleButton(
-                    modifier = Modifier,
-                    checked = transcriptionViewMode == TranscriptionViewMode.SEGMENT,
-                    onCheckedChange = {},
-                    shapes = ToggleButtonDefaults.shapes(
-                        CircleShape,
-                        CircleShape,
-                        CircleShape
-                    )
+                Spacer(modifier = Modifier.width(8.dp))
+                FloatingActionButton(
+                    onClick = {
+                        navController.navigate(Routes.UpdateFillerWords.path)
+                    },
                 ) {
-                    IconButton(
-                        onClick = {
-                            mainViewModel.onTranscriptionViewModelChange(
-                                TranscriptionViewMode.SEGMENT
-                            )
-                        },
-                        shape = CircleShape,
-                        modifier = Modifier.size(24.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.LineWeight,
-                            contentDescription = stringResource(R.string.cd_filler_words),
-                            tint = MaterialTheme.colorScheme.onSecondary,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
+                    Icon(
+                        modifier = Modifier.size(IconButtonDefaults.mediumIconSize),
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = stringResource(R.string.cd_filler_words),
+                    )
                 }
             }
         }
 
-        when(processState) {
+        when (processState) {
             is QuickTrimProcessState.Success -> {
                 QuickTrimSuccessDialog(
                     modifier = Modifier.fillMaxWidth(),
@@ -301,6 +302,7 @@ fun EditScreen(
                     }
                 )
             }
+
             else -> {}
         }
 

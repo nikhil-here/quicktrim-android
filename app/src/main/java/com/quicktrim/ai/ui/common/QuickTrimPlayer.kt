@@ -198,7 +198,7 @@ fun QuickTrimPlayer(
             }
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         HorizontalDivider(
             modifier = Modifier
                 .width(100.dp)
@@ -219,6 +219,7 @@ fun QuickTrimPlayer(
                 ),
             thickness = 6.dp
         )
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
