@@ -35,7 +35,7 @@ API_KEY=YOUR_API_KEY
 ## TODO
 This application is still a work in progress. I'm actively working on code cleanup, UI improvements, and better error handling to make the app more stable, maintainable, and user-friendly.
 - [x] MVP Setup: Getting Things Working
-- [ ] UI Enhancements: Adopting the Material 3 Expressive Design System
+- [x] UI Enhancements: Adopting the Material 3 Expressive Design System
 - [ ] Clean Architecture: Separating Data, Domain, and UI layers; cleaning up ViewModels; removing hardcoded values and flags; making network and transformer modules more flexible
 - [ ] Resiliency: Handling errors gracefully and adding fallbacks for audio extraction, transcription generation, and trimming failures
 - [ ] Background Services: Using foreground services for long-running tasks to allow users to leave or close the app while operations continue in the background
