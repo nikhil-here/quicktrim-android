@@ -1,5 +1,5 @@
 # Quick Trim - AI-Powered Video Trimming App for Android
-<img src="quicktrim-demo.gif" alt="QuickTrim" width="1280"/>
+<img src="quicktrim.webp" alt="QuickTrim" width="1280"/>
 Quick Trim is an AI-powered Android app that simplifies video editing by automatically identifying and removing filler words, awkward silences, and bad takes. It leverages the Eleven Labs API to fetch transcriptions for precise video slicing. and uses Media3 Transformer for trimming media.
 
 ## Features
