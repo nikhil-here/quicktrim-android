@@ -262,7 +262,13 @@ class MainViewModel @Inject constructor(
                         _segmentedJsonFormatResponse.update { response.body }
                         _expandedMode.update { false }
                     }
-
+                    is QuickTrimResponse.UnknownError -> {
+                        _error.update {
+                            QuickTrimResponse.UnknownError(
+                                response.error
+                            )
+                        }
+                    }
                     else -> {
                         _error.update {
                             QuickTrimResponse.UnknownError(
@@ -278,7 +284,7 @@ class MainViewModel @Inject constructor(
                 _error.update {
                     QuickTrimResponse.UnknownError(
                         IllegalStateException(
-                            "unable to generate transcription, please restart the application"
+                            "unable to generate transcription, please restart the application ${e.message}"
                         )
                     )
                 }
