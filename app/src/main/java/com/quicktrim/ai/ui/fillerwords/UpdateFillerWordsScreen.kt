@@ -1,6 +1,6 @@
 package com.quicktrim.ai.ui.fillerwords
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,17 +9,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -31,20 +37,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.google.accompanist.navigation.material.BottomSheetNavigator
-import com.google.accompanist.navigation.material.BottomSheetNavigatorSheetState
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.quicktrim.MainViewModel
-import com.quicktrim.ai.ui.Routes
+import com.quicktrim.ai.R
 import com.quicktrim.ai.ui.theme.QuicktrimandroidTheme
 
-@OptIn(ExperimentalMaterialNavigationApi::class)
+@OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun UpdateFillerWordsScreen(
     modifier: Modifier = Modifier,
@@ -68,18 +73,20 @@ fun UpdateFillerWordsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(Modifier.height(16.dp))
                 Text(
-                    "Add Filler Words",
+                    modifier = Modifier.fillMaxWidth().padding(top = 56.dp, bottom = 16.dp),
+                    text = "Add Filler Words",
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.headlineLarge
                 )
                 Spacer(Modifier.height(16.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     OutlinedTextField(
                         modifier = Modifier.weight(2f),
@@ -100,37 +107,40 @@ fun UpdateFillerWordsScreen(
                         )
                     )
                     Spacer(Modifier.width(6.dp))
-                    Button(
-                        modifier = Modifier.weight(1f),
+                    FilledIconButton(
+                        modifier = Modifier.size(IconButtonDefaults.mediumContainerSize()),
                         onClick = {
                             submit()
-                            navigator.popBackStack()
-                        }
+                        },
+                        colors =  IconButtonDefaults.filledIconButtonColors(),
+                        shape = IconButtonDefaults.mediumRoundShape
                     ) {
-                        Text("SUBMIT")
+                        Icon(
+                            imageVector = Icons.Filled.Send,
+                            contentDescription = stringResource(R.string.cd_filler_words),
+                            modifier = Modifier.size(IconButtonDefaults.mediumIconSize),
+                        )
                     }
                 }
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(32.dp))
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize().background(
+                        color = MaterialTheme.colorScheme.surface,
+                        shape = RoundedCornerShape(6.dp)
+                    )
+                        .padding(bottom = 56.dp),
                 ) {
                     items(fillerWords.toList()) { fillerWord ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .border(
-                                    width = 1.dp,
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                    shape = RoundedCornerShape(4.dp)
-                                )
-                                .padding(4.dp),
+                                .padding(8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-
                             Text(
                                 text = fillerWord,
-                                style = MaterialTheme.typography.bodyLarge,
+                                style = MaterialTheme.typography.headlineSmall,
                                 modifier = Modifier.fillMaxWidth(0.6f)
                             )
 
@@ -138,14 +148,17 @@ fun UpdateFillerWordsScreen(
                                 onClick = {
                                     mainViewModel.onRemoveFillerWord(fillerWord)
                                 },
-                                modifier = Modifier
+                                colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
+                                shape = CircleShape
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = "remove"
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = "Remove",
+                                    tint = MaterialTheme.colorScheme.onTertiaryContainer
                                 )
                             }
                         }
+                        HorizontalDivider()
                     }
                 }
             }

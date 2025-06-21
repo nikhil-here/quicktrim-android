@@ -15,19 +15,31 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.quicktrim.MainViewModel
+import com.quicktrim.ai.R
 import com.quicktrim.ai.ui.Routes
+import com.quicktrim.ai.ui.theme.QuicktrimandroidTheme
 
 private const val TAG = "UploadScreen"
 
@@ -39,7 +51,6 @@ fun UploadScreen(
 ) {
     val context = LocalContext.current
     val activity = LocalActivity.current ?: return
-
     val pickMedia = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -71,6 +82,53 @@ fun UploadScreen(
         }
     }
 
+    fun onUploadClick() {
+        when {
+            ContextCompat.checkSelfPermission(
+                context,
+                READ_MEDIA_VISUAL_USER_SELECTED
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                launchPickMedia()
+            }
+
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                activity, READ_MEDIA_VIDEO
+            ) || ActivityCompat.shouldShowRequestPermissionRationale(
+                activity, READ_MEDIA_VISUAL_USER_SELECTED
+            ) -> {
+                Toast.makeText(
+                    context,
+                    "Enable permissions from settings",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+
+            else -> {
+                permissionLauncher.launch(
+                    arrayOf(
+                        READ_MEDIA_VIDEO,
+                        READ_MEDIA_VISUAL_USER_SELECTED
+                    )
+                )
+            }
+        }
+    }
+
+    UploadScreenUi(
+        modifier = modifier,
+        onUploadClick = {
+            onUploadClick()
+        }
+    )
+}
+
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun UploadScreenUi(
+    modifier: Modifier = Modifier,
+    onUploadClick: () -> Unit
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -79,51 +137,42 @@ fun UploadScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Quick Trim",
-            style = MaterialTheme.typography.headlineLarge
+            text = stringResource(R.string.app_name),
+            style = MaterialTheme.typography.displayLarge,
+            textAlign = TextAlign.Center
         )
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "transcription based video trimmer",
-            style = MaterialTheme.typography.bodyMedium
+            text = stringResource(R.string.app_description_one_liner),
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = 16.sp
         )
-        Spacer(modifier = Modifier.height(18.dp))
-
-        Button(
-            onClick = {
-                when {
-                    ContextCompat.checkSelfPermission(
-                        context,
-                        READ_MEDIA_VISUAL_USER_SELECTED
-                    ) == PackageManager.PERMISSION_GRANTED -> {
-                        launchPickMedia()
-                    }
-
-                    ActivityCompat.shouldShowRequestPermissionRationale(
-                        activity, READ_MEDIA_VIDEO
-                    ) || ActivityCompat.shouldShowRequestPermissionRationale(
-                        activity, READ_MEDIA_VISUAL_USER_SELECTED
-                    ) -> {
-                        Toast.makeText(
-                            context,
-                            "Enable permissions from settings",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-
-                    else -> {
-                        permissionLauncher.launch(
-                            arrayOf(
-                                READ_MEDIA_VIDEO,
-                                READ_MEDIA_VISUAL_USER_SELECTED
-                            )
-                        )
-
-                    }
-                }
-            }
+        Spacer(modifier = Modifier.height(32.dp))
+        FloatingActionButton(
+            onClick = onUploadClick,
+            modifier = Modifier.size(56.dp)
         ) {
-            Text("Upload")
+            Icon(
+                modifier = Modifier.size(32.dp),
+                imageVector = Icons.Filled.Add,
+                contentDescription = stringResource(R.string.cd_upload_cta)
+            )
         }
     }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewUploadScreen() {
+    QuicktrimandroidTheme {
+        UploadScreenUi(
+            onUploadClick = {
+
+            }
+        )
+    }
+
 }

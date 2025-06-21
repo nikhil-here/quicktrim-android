@@ -23,6 +23,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -93,5 +94,9 @@ dependencies {
 
     //accompanist
     implementation(libs.accompanist.navigation)
+
+    //Google Fonts
+    implementation(libs.androidx.google.font)
+
 
 }

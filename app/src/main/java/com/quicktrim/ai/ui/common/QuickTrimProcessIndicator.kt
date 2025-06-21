@@ -4,12 +4,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.TaskAlt
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.LoadingIndicatorDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,13 +41,15 @@ sealed class QuickTrimProcessState(
 
     data class Success(
         val title: String,
-        val message: String?
+        val message: String?,
+        val outputPath: String? = null
     ) : QuickTrimProcessState(title, message)
 
     data object None : QuickTrimProcessState("", "")
 }
 
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun QuickTrimProcessIndicator(
     modifier: Modifier = Modifier,
@@ -51,34 +57,18 @@ fun QuickTrimProcessIndicator(
 ) {
     if (state != QuickTrimProcessState.None) {
         Row(
-            modifier = modifier,
+            modifier = modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            when (state) {
-                is QuickTrimProcessState.Definite -> {
-                    CircularProgressIndicator(
-                        progress = { state.progress }
-                    )
-                }
-
-                is QuickTrimProcessState.Success -> {
-                    Icon(
-                        imageVector = Icons.Rounded.TaskAlt,
-                        tint = Color.Green,
-                        contentDescription = "success"
-                    )
-                }
-
-                else -> {
-                    CircularProgressIndicator()
-                }
-            }
-            Spacer(Modifier.width(12.dp))
-            Column(modifier = modifier) {
+            LoadingIndicator(
+                polygons = LoadingIndicatorDefaults.IndeterminateIndicatorPolygons
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Column {
                 Text(
                     text = state.processTitle.orEmpty(),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyLarge,
                 )
                 if (!state.processMessage.isNullOrEmpty()) {
                     Spacer(Modifier.height(2.dp))
@@ -87,6 +77,7 @@ fun QuickTrimProcessIndicator(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
+                Spacer(modifier = Modifier.height(6.dp))
             }
         }
     }

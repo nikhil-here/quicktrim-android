@@ -40,9 +40,7 @@ fun QuickTrimErrorDialog(
     onDismissRequest: () -> Unit
 ) {
     Dialog(
-        onDismissRequest = {
-
-        }
+        onDismissRequest = onDismissRequest
     ) {
         Card(
             modifier = Modifier.fillMaxWidth()

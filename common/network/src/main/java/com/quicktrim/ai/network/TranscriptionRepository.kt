@@ -5,6 +5,7 @@ import com.quicktrim.ai.network.model.QuickTrimResponse
 import com.quicktrim.ai.network.model.SegmentedJsonFormatResponse
 import com.quicktrim.ai.network.model.SpeechToTextResponse
 import com.quicktrim.ai.network.service.QuickTrimApiService
+import kotlinx.coroutines.delay
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import org.json.JSONArray

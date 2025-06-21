@@ -6,8 +6,11 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.Timeline
+import androidx.media3.common.VideoSize
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import com.quicktrim.ai.network.TranscriptionRepository
@@ -22,6 +25,7 @@ import com.quicktrim.ai.transformer.toMs
 import com.quicktrim.ai.ui.Constants
 import com.quicktrim.ai.ui.common.MultiMediaSeekbarController
 import com.quicktrim.ai.ui.common.QuickTrimProcessState
+import com.quicktrim.ai.ui.common.TranscriptionViewMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,6 +57,9 @@ class MainViewModel @Inject constructor(
     private val _isMuted = MutableStateFlow(false)
     val isMuted = _isMuted.asStateFlow()
 
+    private val _isPlaying = MutableStateFlow(false)
+    val isPlaying = _isPlaying.asStateFlow()
+
     private val _progress = MutableStateFlow(0L)
     val progress = _progress.asStateFlow()
 
@@ -68,17 +75,25 @@ class MainViewModel @Inject constructor(
     private val _error = MutableStateFlow<QuickTrimResponse.UnknownError?>(null)
     val error = _error.asStateFlow()
 
+    private val _aspectRatio = MutableStateFlow<Float>(9 / 16f)
+    val aspectRatio = _aspectRatio.asStateFlow()
+
     private val _segmentedJsonFormatResponse = MutableStateFlow(
         SegmentedJsonFormatResponse(segmentResponses = emptyList())
     )
     val segmentedJsonFormatResponse = _segmentedJsonFormatResponse.asStateFlow()
 
+    private val _transcriptionViewMode = MutableStateFlow(TranscriptionViewMode.PARAGRAPH)
+    val transcriptionViewMode = _transcriptionViewMode.asStateFlow()
+
     private val _fillerWords = MutableStateFlow(setOf<String>())
     val fillerWords = _fillerWords.asStateFlow()
 
+    private val _expandedMode = MutableStateFlow(true)
+    val expandedMode = _expandedMode.asStateFlow()
 
     private var mediaUri: Uri? = null
-    private var originalMediaDuration: Long? = null
+    var originalMediaDuration: Long? = null
     private var controller: MultiMediaSeekbarController? = null
 
     private val onProgressUpdate = { progress: Long, duration: Long ->
@@ -86,14 +101,37 @@ class MainViewModel @Inject constructor(
         _totalDuration.update { duration }
     }
 
+    private val playerListener = object : Player.Listener {
+        override fun onVideoSizeChanged(videoSize: VideoSize) {
+            Log.i(TAG, "onVideoSizeChanged: videoSize $videoSize")
+            if (videoSize.width == 0 || videoSize.height == 0) return
+            val ratio =(videoSize.width / videoSize.height.toFloat()).coerceAtLeast(0.1f)
+            Log.i(TAG, "onVideoSizeChanged aspectRatio: $ratio")
+            _aspectRatio.update { ratio }
+        }
+
+        override fun onTimelineChanged(timeline: Timeline, reason: Int) {
+            if (originalMediaDuration == null) {
+                originalMediaDuration = exoPlayer?.duration ?: 0L
+            }
+        }
+
+        override fun onIsPlayingChanged(isPlaying: Boolean) {
+            _isPlaying.update { isPlaying }
+        }
+    }
+
     fun onUriSelected(uri: Uri) {
         Log.i(TAG, "onUriSelected: uri $uri")
         mediaUri = uri
         originalMediaDuration = null
         //Initialize the player
+        exoPlayer?.release()
+        exoPlayer = null
         exoPlayer = ExoPlayer.Builder(context).build().apply {
             playWhenReady = true
             repeatMode = Player.REPEAT_MODE_ALL
+            addListener(playerListener)
         }
         controller = exoPlayer?.let {
             MultiMediaSeekbarController(
@@ -126,6 +164,33 @@ class MainViewModel @Inject constructor(
             _isMuted.update { true }
         }
     }
+
+    fun onForward() {
+        val currentPosition = exoPlayer?.currentPosition ?: 0L
+        val duration = exoPlayer?.duration ?: C.TIME_UNSET
+        val target = minOf(currentPosition + 5000L, duration)
+        exoPlayer?.seekTo(target)
+    }
+
+    fun onRewind() {
+        val currentPosition = exoPlayer?.currentPosition ?: 0L
+        val target = maxOf(currentPosition - 5000L, 0L)
+        exoPlayer?.seekTo(target)
+    }
+
+    fun onTogglePlayPause() {
+        Log.i(TAG, "toggleMuteUnMute: current volume ${exoPlayer?.volume}")
+        if (exoPlayer?.isPlaying == true) {
+            exoPlayer?.pause()
+        } else {
+            exoPlayer?.play()
+        }
+    }
+
+    fun toggleExpandMode() {
+        _expandedMode.update { !it }
+    }
+
 
     fun setMediaItem(mediaItem: List<MediaItem>) {
         exoPlayer?.setMediaItems(mediaItem)
@@ -183,7 +248,7 @@ class MainViewModel @Inject constructor(
             _processState.update {
                 QuickTrimProcessState.Indefinite(
                     title = "Generating Transcription",
-                    message = Constants.GENERIC_WAIT_MSG
+                    message = null
                 )
             }
 
@@ -195,8 +260,15 @@ class MainViewModel @Inject constructor(
                 when (response) {
                     is QuickTrimResponse.Success<SegmentedJsonFormatResponse> -> {
                         _segmentedJsonFormatResponse.update { response.body }
+                        _expandedMode.update { false }
                     }
-
+                    is QuickTrimResponse.UnknownError -> {
+                        _error.update {
+                            QuickTrimResponse.UnknownError(
+                                response.error
+                            )
+                        }
+                    }
                     else -> {
                         _error.update {
                             QuickTrimResponse.UnknownError(
@@ -212,7 +284,7 @@ class MainViewModel @Inject constructor(
                 _error.update {
                     QuickTrimResponse.UnknownError(
                         IllegalStateException(
-                            "unable to generate transcription, please restart the application"
+                            "unable to generate transcription, please restart the application ${e.message}"
                         )
                     )
                 }
@@ -260,6 +332,8 @@ class MainViewModel @Inject constructor(
                 )
             }
 
+            _expandedMode.update { false }
+
             val removedSegmentsAndWords = getRemovedSegments()
 
             val result = transformer.trimVideo(
@@ -284,8 +358,9 @@ class MainViewModel @Inject constructor(
                     setMediaItem(listOf(MediaItem.fromUri(result.body.outputPath)))
                     _processState.update {
                         QuickTrimProcessState.Success(
-                            title = "Trim Completed",
-                            message = "trimmed video saved on your device"
+                            title = Constants.EXPORT_SUCCESS_TITLE,
+                            message = "${Constants.EXPORT_SUCCESS_DESCRIPTION} \n${result.body.outputPath}",
+                            outputPath = result.body.outputPath
                         )
                     }
                 }
@@ -387,6 +462,44 @@ class MainViewModel @Inject constructor(
         playTrimVideoPreview()
     }
 
+    fun onRemoveOrAddWordResponse(removedWord: WordResponse) {
+        _segmentedJsonFormatResponse.update { response ->
+            response.copy(
+                segmentResponses = response.segmentResponses.map { segment ->
+                    segment.copy(
+                        wordResponses = segment.wordResponses.map { word ->
+                            if (word == removedWord) {
+                                word.copy(isRemoved = !word.isRemoved)
+                            } else {
+                                word
+                            }
+                        }
+                    )
+                }
+            )
+        }
+        playTrimVideoPreview()
+    }
+
+    fun onAddWordResponse(removedWord: WordResponse) {
+        _segmentedJsonFormatResponse.update { response ->
+            response.copy(
+                segmentResponses = response.segmentResponses.map { segment ->
+                    segment.copy(
+                        wordResponses = segment.wordResponses.map { word ->
+                            if (word == removedWord) {
+                                word.copy(isRemoved = false)
+                            } else {
+                                word
+                            }
+                        }
+                    )
+                }
+            )
+        }
+        playTrimVideoPreview()
+    }
+
     fun onAddFillerWord(fillerWord: String) {
         Log.i(TAG, "onAddFillerWord: $fillerWord")
         _fillerWords.update {
@@ -412,6 +525,14 @@ class MainViewModel @Inject constructor(
             )
         }
         playTrimVideoPreview()
+    }
+
+    fun onExportSuccessDialogDismissRequest() {
+        _processState.update { QuickTrimProcessState.None }
+    }
+
+    fun onTranscriptionViewModelChange(mode: TranscriptionViewMode) {
+        _transcriptionViewMode.update { mode }
     }
 
     fun onExportScreenBackClick() {

@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">quicktrim-android</string>
+    <string name="app_name">Quick\nTrim</string>
+    <string name="app_description">transcription based Video Trimmer.</string>
+    <string name="app_description_one_liner">Your Voice, your script, your cut.</string>
+    <string name="cd_upload_cta">Pick Media</string>
+    <string name="cd_navigation_cta">Back</string>
+    <string name="cd_play_pause">Toggle Play Pause</string>
+    <string name="cd_forward">Forward</string>
+    <string name="cd_rewind">Rewind</string>
+    <string name="cd_export">Export Trimmed Media</string>
+    <string name="cd_filler_words">Add Fillers Words</string>
 </resources>

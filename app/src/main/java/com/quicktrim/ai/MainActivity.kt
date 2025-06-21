@@ -7,9 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,8 +18,8 @@ import com.google.accompanist.navigation.material.bottomSheet
 import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 import com.quicktrim.MainViewModel
 import com.quicktrim.ai.ui.Routes
+import com.quicktrim.ai.ui.common.QuickTrimAppBar
 import com.quicktrim.ai.ui.edit.EditScreen
-import com.quicktrim.ai.ui.export.ExportScreen
 import com.quicktrim.ai.ui.fillerwords.UpdateFillerWordsScreen
 import com.quicktrim.ai.ui.theme.QuicktrimandroidTheme
 import com.quicktrim.ai.ui.upload.UploadScreen
@@ -42,7 +40,15 @@ class MainActivity : ComponentActivity() {
                 val bottomSheetNavigator = rememberBottomSheetNavigator()
                 val navController = rememberNavController(bottomSheetNavigator)
 
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    topBar = {
+                        QuickTrimAppBar(
+                            navController = navController,
+                            mainViewModel = mainViewModel
+                        )
+                    }
+                ) { innerPadding ->
                     ModalBottomSheetLayout(
                         bottomSheetNavigator = bottomSheetNavigator
                     ) {
@@ -66,15 +72,6 @@ class MainActivity : ComponentActivity() {
                                 EditScreen(
                                     navController = navController,
                                     mainViewModel = mainViewModel
-                                )
-                            }
-
-                            composable(
-                                route = Routes.Export.path
-                            ) {
-                                ExportScreen(
-                                    mainViewModel = mainViewModel,
-                                    navController = navController
                                 )
                             }
 
