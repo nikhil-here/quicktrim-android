@@ -40,18 +40,18 @@ class TranscriptionRepository @Inject constructor(
             }
 
             //fetching transcription from elven labs api
-//            val responseBody = quickTrimApiService.speechToText(
-//                file = audioPart,
-//                modelId = "scribe_v1",
-//                timestampGranularity = "word",
-//                additionalFormats = additionalFormatsArray.toString(),
-//                diarize = true
-//            )
+            val responseBody = quickTrimApiService.speechToText(
+                file = audioPart,
+                modelId = "scribe_v1",
+                timestampGranularity = "word",
+                additionalFormats = additionalFormatsArray.toString(),
+                diarize = true
+            )
 
             //parsing retrofit response body
             val speechToTextResponse = gson.fromJson(
-                Dummy.response,
-                //responseBody.string(),
+                //Dummy.response,
+                responseBody.string(),
                 SpeechToTextResponse::class.java
             )
 
