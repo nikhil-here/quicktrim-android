@@ -31,7 +31,6 @@ fun QuickTrimAppBar(
     val backStackEntry by navController.currentBackStackEntryAsState()
     val canGoBack = backStackEntry?.destination?.route in listOf(
         Routes.Edit.path,
-        Routes.Export.path
     )
     val showExportIcon = backStackEntry?.destination?.route in listOf(Routes.Edit.path)
 
@@ -60,7 +59,6 @@ fun QuickTrimAppBar(
             if (showExportIcon) {
                 IconButton(
                     onClick = {
-                        navController.navigate(Routes.Export.path)
                         mainViewModel.export()
                     }
                 ) {

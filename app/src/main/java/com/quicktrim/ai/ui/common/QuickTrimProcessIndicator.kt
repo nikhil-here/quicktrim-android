@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -56,28 +57,15 @@ fun QuickTrimProcessIndicator(
 ) {
     if (state != QuickTrimProcessState.None) {
         Row(
-            modifier = modifier,
+            modifier = modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceAround
+            horizontalArrangement = Arrangement.Center
         ) {
-            when (state) {
-                is QuickTrimProcessState.Definite -> {
-                    LoadingIndicator(
-                        polygons = LoadingIndicatorDefaults.DeterminateIndicatorPolygons
-                    )
-                }
-
-                is QuickTrimProcessState.Success -> {
-                    //
-                }
-
-                else -> {
-                    LoadingIndicator(
-                        polygons = LoadingIndicatorDefaults.DeterminateIndicatorPolygons,
-                    )
-                }
-            }
-            Column(modifier = modifier) {
+            LoadingIndicator(
+                polygons = LoadingIndicatorDefaults.IndeterminateIndicatorPolygons
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Column {
                 Text(
                     text = state.processTitle.orEmpty(),
                     style = MaterialTheme.typography.bodyLarge,

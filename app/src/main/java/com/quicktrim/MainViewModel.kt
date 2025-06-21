@@ -521,6 +521,10 @@ class MainViewModel @Inject constructor(
         playTrimVideoPreview()
     }
 
+    fun onExportSuccessDialogDismissRequest() {
+        _processState.update { QuickTrimProcessState.None }
+    }
+
     fun onTranscriptionViewModelChange(mode: TranscriptionViewMode) {
         _transcriptionViewMode.update { mode }
     }

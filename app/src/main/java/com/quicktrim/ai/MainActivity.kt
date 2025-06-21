@@ -20,7 +20,6 @@ import com.quicktrim.MainViewModel
 import com.quicktrim.ai.ui.Routes
 import com.quicktrim.ai.ui.common.QuickTrimAppBar
 import com.quicktrim.ai.ui.edit.EditScreen
-import com.quicktrim.ai.ui.export.ExportScreen
 import com.quicktrim.ai.ui.fillerwords.UpdateFillerWordsScreen
 import com.quicktrim.ai.ui.theme.QuicktrimandroidTheme
 import com.quicktrim.ai.ui.upload.UploadScreen
@@ -73,15 +72,6 @@ class MainActivity : ComponentActivity() {
                                 EditScreen(
                                     navController = navController,
                                     mainViewModel = mainViewModel
-                                )
-                            }
-
-                            composable(
-                                route = Routes.Export.path
-                            ) {
-                                ExportScreen(
-                                    mainViewModel = mainViewModel,
-                                    navController = navController
                                 )
                             }
 

@@ -1,5 +1,9 @@
 package com.quicktrim.ai.ui.edit
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,6 +51,8 @@ import com.quicktrim.ai.ui.Routes
 import com.quicktrim.ai.ui.common.QuickTrimErrorDialog
 import com.quicktrim.ai.ui.common.QuickTrimPlayer
 import com.quicktrim.ai.ui.common.QuickTrimProcessIndicator
+import com.quicktrim.ai.ui.common.QuickTrimProcessState
+import com.quicktrim.ai.ui.common.QuickTrimSuccessDialog
 import com.quicktrim.ai.ui.common.SegmentParagraph
 import com.quicktrim.ai.ui.common.SegmentRow
 import com.quicktrim.ai.ui.common.TranscriptionViewMode
@@ -58,6 +65,7 @@ fun EditScreen(
     navController: NavController,
     mainViewModel: MainViewModel
 ) {
+    val context = LocalContext.current
     val expandedMode by mainViewModel.expandedMode.collectAsStateWithLifecycle()
     val isMuted by mainViewModel.isMuted.collectAsStateWithLifecycle()
     val isPlaying by mainViewModel.isPlaying.collectAsStateWithLifecycle()
@@ -73,6 +81,13 @@ fun EditScreen(
         derivedStateOf { segmentJsonFormatResponse.segmentResponses.isNotEmpty() }
     }
     val lazyListState = rememberLazyListState()
+
+    fun copyToClipboard(context: Context, label: String, text: String) {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText(label, text)
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+    }
 
     Box(
         modifier = modifier
@@ -263,6 +278,30 @@ fun EditScreen(
                     }
                 }
             }
+        }
+
+        when(processState) {
+            is QuickTrimProcessState.Success -> {
+                QuickTrimSuccessDialog(
+                    modifier = Modifier.fillMaxWidth(),
+                    title = processState.processTitle,
+                    message = processState.processMessage,
+                    ctaTitle = "COPY PATH",
+                    onClick = {
+                        (processState as QuickTrimProcessState.Success).outputPath?.let {
+                            copyToClipboard(
+                                context = context,
+                                label = "Trimmed Video Path",
+                                text = it
+                            )
+                        }
+                    },
+                    onDismissRequest = {
+                        mainViewModel.onExportSuccessDialogDismissRequest()
+                    }
+                )
+            }
+            else -> {}
         }
 
     }

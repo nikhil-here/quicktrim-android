@@ -53,7 +53,7 @@ fun QuickTrimSuccessDialog(
         onDismissRequest = onDismissRequest
     ) {
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = modifier.fillMaxWidth(),
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth().align (Alignment.CenterHorizontally),
