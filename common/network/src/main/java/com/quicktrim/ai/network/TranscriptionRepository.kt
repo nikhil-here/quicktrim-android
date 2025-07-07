@@ -21,6 +21,7 @@ class TranscriptionRepository @Inject constructor(
 ) {
 
     suspend fun speechToText(file: File): QuickTrimResponse<SegmentedJsonFormatResponse, Nothing> {
+        return QuickTrimResponse.UnknownError(Exception())
         try {
             //creating multipart file
             val audioPart = MultipartBody.Part.createFormData(

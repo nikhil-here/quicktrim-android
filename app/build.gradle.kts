@@ -98,5 +98,12 @@ dependencies {
     //Google Fonts
     implementation(libs.androidx.google.font)
 
+    //Room DB
+    implementation(libs.androidx.room.runtime)
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
+    //gson
+    implementation(libs.gson)
 
 }

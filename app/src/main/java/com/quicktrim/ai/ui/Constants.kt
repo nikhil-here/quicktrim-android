@@ -8,6 +8,9 @@ object Constants {
     const val GENERIC_ERROR_MSG = "Something Went Wrong"
     const val GENERIC_WAIT_MSG = "this might take few mins"
 
+
+    const val DEFAULT_PROJECT_NAME = "untitled"
+
     const val EXPORT_SUCCESS_TITLE = "Video Saved"
     const val EXPORT_SUCCESS_DESCRIPTION = "trimmed video exported successfully"
 

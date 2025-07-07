@@ -1,5 +1,9 @@
 package com.quicktrim.ai
 
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 fun Long.toTimeString(): String {
     val totalSeconds = this / 1000
     val seconds = totalSeconds % 60
@@ -10,6 +14,12 @@ fun Long.toTimeString(): String {
         String.format("%d:%02d:%02d", hours, minutes, seconds)
     else
         String.format("%02d:%02d", minutes, seconds)
+}
+
+fun Long.toDate(): String {
+    val date = Date(this)
+    val sdf = SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault())
+    return sdf.format(date)
 }
 
 
