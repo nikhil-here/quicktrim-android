@@ -9,17 +9,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
 import com.google.accompanist.navigation.material.bottomSheet
 import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 import com.quicktrim.MainViewModel
+import com.quicktrim.ai.ui.NavArgs
 import com.quicktrim.ai.ui.Routes
 import com.quicktrim.ai.ui.common.QuickTrimAppBar
 import com.quicktrim.ai.ui.edit.EditScreen
+import com.quicktrim.ai.ui.edit.EditViewModel
 import com.quicktrim.ai.ui.fillerwords.UpdateFillerWordsScreen
 import com.quicktrim.ai.ui.theme.QuicktrimandroidTheme
 import com.quicktrim.ai.ui.upload.UploadScreen
@@ -30,6 +34,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     val mainViewModel by viewModels<MainViewModel>()
+    val editViewModel by viewModels<EditViewModel>()
 
     @OptIn(ExperimentalMaterialNavigationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +50,7 @@ class MainActivity : ComponentActivity() {
                     topBar = {
                         QuickTrimAppBar(
                             navController = navController,
-                            mainViewModel = mainViewModel
+                            editViewModel = editViewModel
                         )
                     }
                 ) { innerPadding ->
@@ -67,11 +72,17 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable(
-                                route = Routes.Edit.path
+                                route = Routes.Edit.path,
+                                arguments = listOf(
+                                    navArgument(NavArgs.PROJECT_ID) { type = NavType.LongType }
+                                )
                             ) {
+                                val projectId = it.arguments?.getLong(NavArgs.PROJECT_ID)
+                                requireNotNull(projectId)
                                 EditScreen(
+                                    projectId = projectId,
                                     navController = navController,
-                                    mainViewModel = mainViewModel
+                                    editViewModel = editViewModel
                                 )
                             }
 
@@ -79,7 +90,7 @@ class MainActivity : ComponentActivity() {
                                 route = Routes.UpdateFillerWords.path
                             ) {
                                 UpdateFillerWordsScreen(
-                                    mainViewModel = mainViewModel,
+                                    editViewModel = editViewModel,
                                     navigator = navController
                                 )
                             }

@@ -11,6 +11,7 @@ data class ProjectDbEntity(
     @ColumnInfo("original_media_url") val originalMediaUrl: String,
     @ColumnInfo("segmented_json_format") val segmentedJsonFormatDbEntity: SegmentedJsonFormatDbEntity? = null,
     @ColumnInfo("exported_media_url") val exportedMediaUrl: String?,
+    @ColumnInfo("extracted_audio_url") val extractedAudioUrl: String?,
     @ColumnInfo("created_at") val createdAt: Long = System.currentTimeMillis(),
     @ColumnInfo("updated_at") val updatedAt: Long = System.currentTimeMillis(),
 )

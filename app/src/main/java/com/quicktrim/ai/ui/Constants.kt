@@ -1,7 +1,9 @@
 package com.quicktrim.ai.ui
 
-import com.quicktrim.ai.network.model.SegmentResponse
-import com.quicktrim.ai.network.model.WordResponse
+import com.quicktrim.ai.data.remote.model.SegmentRemoteResponse
+import com.quicktrim.ai.data.remote.model.WordRemoteResponse
+import com.quicktrim.ai.domain.model.Segment
+import com.quicktrim.ai.domain.model.Word
 
 object Constants {
 
@@ -17,11 +19,12 @@ object Constants {
     const val AUTO_HIDE_DELAY = 5_000L
 
 
-    val PREVIEW_SEGMENT = SegmentResponse(
+    val PREVIEW_SEGMENT = Segment(
+        id = "",
         text = "hi its nikhiel",
-        isRemoved = true,
-        wordResponses = listOf(
-            WordResponse(
+        words = listOf(
+            Word(
+                id = "",
                 start = 0.00,
                 end = 0.00,
                 logprob = 0.11,
@@ -30,7 +33,8 @@ object Constants {
                 type = "word",
                 isRemoved = false
             ),
-            WordResponse(
+            Word(
+                id = "",
                 start = 0.00,
                 end = 0.00,
                 logprob = 0.11,
@@ -39,7 +43,8 @@ object Constants {
                 type = "word",
                 isRemoved = false
             ),
-            WordResponse(
+            Word(
+                id = "",
                 start = 0.00,
                 end = 0.00,
                 logprob = 0.11,
@@ -48,7 +53,8 @@ object Constants {
                 type = "",
                 isRemoved = false
             ),
-            WordResponse(
+            Word(
+                id = "",
                 start = 0.00,
                 end = 0.00,
                 logprob = 0.11,
@@ -57,7 +63,8 @@ object Constants {
                 type = "",
                 isRemoved = false
             ),
-            WordResponse(
+            Word(
+                id = "",
                 start = 0.00,
                 end = 0.00,
                 logprob = 0.11,

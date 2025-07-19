@@ -8,6 +8,8 @@ data class SegmentedJsonFormatDbEntity(
 )
 
 data class SegmentDbEntity(
+    @SerializedName("id")
+    val id: String,
     @SerializedName("text")
     val text: String,
     @SerializedName("words")
@@ -17,6 +19,8 @@ data class SegmentDbEntity(
 )
 
 data class WordDbEntity(
+    @SerializedName("id")
+    val id: String,
     @SerializedName("end")
     val end: Double,
     @SerializedName("logprob")

@@ -16,9 +16,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.quicktrim.MainViewModel
 import com.quicktrim.ai.R
 import com.quicktrim.ai.ui.Routes
+import com.quicktrim.ai.ui.edit.EditViewModel
 import com.quicktrim.ai.ui.toAppBarTitle
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,7 +26,7 @@ import com.quicktrim.ai.ui.toAppBarTitle
 fun QuickTrimAppBar(
     modifier: Modifier = Modifier,
     navController: NavController,
-    mainViewModel: MainViewModel
+    editViewModel: EditViewModel,
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val canGoBack = backStackEntry?.destination?.route in listOf(
@@ -59,7 +59,7 @@ fun QuickTrimAppBar(
             if (showExportIcon) {
                 IconButton(
                     onClick = {
-                        mainViewModel.export()
+                        editViewModel.export()
                     }
                 ) {
                     Icon(

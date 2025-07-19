@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.room.Room
 import com.quicktrim.ai.data.local.dao.ProjectDao
 import com.quicktrim.ai.data.local.db.QuickTrimDatabase
-import com.quicktrim.ai.transformer.MediaTransformer
-import com.quicktrim.ai.transformer.QuickTrimTransformer
+import com.quicktrim.ai.domain.transformer.MediaTransformer
+import com.quicktrim.ai.domain.transformer.QuickTrimTransformer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,7 +32,7 @@ class AppModule {
             context,
             QuickTrimDatabase::class.java,
             "quicktrim_db"
-        ).build()
+        ).fallbackToDestructiveMigration(true).build()
     }
 
     @Provides

@@ -103,11 +103,18 @@ fun UploadScreen(
     }
 
     fun onUploadClick() {
+        val isReadPermissionGranted = ContextCompat.checkSelfPermission(
+            context,
+            READ_MEDIA_VISUAL_USER_SELECTED
+        ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+            context,
+            READ_MEDIA_VIDEO
+        ) == PackageManager.PERMISSION_GRANTED
+
+        Log.i(TAG, "onUploadClick: isReadPermissionGranted $isReadPermissionGranted")
+
         when {
-            ContextCompat.checkSelfPermission(
-                context,
-                READ_MEDIA_VISUAL_USER_SELECTED
-            ) == PackageManager.PERMISSION_GRANTED -> {
+            isReadPermissionGranted -> {
                 launchPickMedia()
             }
 
@@ -134,12 +141,11 @@ fun UploadScreen(
         }
     }
 
-    LaunchedEffect(uploadViewModel) {
+    LaunchedEffect(true) {
         uploadViewModel.sideEffect.collectLatest {
             when (it) {
                 is UploadScreenSideEffects.NavigateToEditScreen -> {
-                    mainViewModel.onUriSelected(it.uri.toUri())
-                    navController.navigate(Routes.Edit.path)
+                    navController.navigate(Routes.Edit.withProjectId(id = it.projectId))
                 }
             }
         }
@@ -278,16 +284,14 @@ private fun PreviewUploadScreen() {
 @Composable
 private fun PreviewProjectRow() {
     QuicktrimandroidTheme {
-        ProjectRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp),
-            project = Project(
-                originalMediaUrl = "",
-            ),
-            onProjectSelected = {
-
-            }
+        UploadScreenUi(
+            onUploadClick = {},
+            projects = (1..4).map {
+                Project(
+                    originalMediaUrl = "",
+                )
+            },
+            onProjectSelected = {}
         )
     }
 }

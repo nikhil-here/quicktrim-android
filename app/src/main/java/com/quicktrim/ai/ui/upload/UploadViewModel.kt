@@ -12,8 +12,10 @@ import com.quicktrim.ai.ui.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
 
 private const val TAG = "UploadViewModel"
@@ -30,15 +32,18 @@ class UploadViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _sideEffect = Channel<UploadScreenSideEffects>()
-    val sideEffect = _sideEffect.consumeAsFlow()
+    val sideEffect = _sideEffect.receiveAsFlow()
 
     val projects = repository.getProjects()
 
     fun onMediaUriSelected(uri: Uri) {
         viewModelScope.launch {
+
+            val internalUri = moveMediaToInternalStorage(uri)
+
             val project = Project(
                 projectName = getCleanFileName(uri),
-                originalMediaUrl = uri.toString(),
+                originalMediaUrl = internalUri
             )
             val projectId = repository.saveProject(project)
             Log.i(TAG, "onMediaUriSelected: project created with id $projectId")
@@ -84,5 +89,15 @@ class UploadViewModel @Inject constructor(
             // Clean the file name: remove spaces, replace with underscore
             fileName.trim().replace("\\s+".toRegex(), "_")
         }.getOrDefault(Constants.DEFAULT_PROJECT_NAME)
+    }
+
+    fun moveMediaToInternalStorage(uri: Uri) : String {
+        val contentResolver = context.contentResolver
+        val fileName = getCleanFileName(uri)
+        val inputStream = contentResolver.openInputStream(uri)
+        val outputFile = File(context.filesDir, "fileName.mp4")
+        val outputStream = FileOutputStream(outputFile)
+        inputStream?.copyTo(outputStream)
+        return outputFile.path.toString()
     }
 }
