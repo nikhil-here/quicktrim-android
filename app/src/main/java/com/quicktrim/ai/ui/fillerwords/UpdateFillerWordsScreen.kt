@@ -45,27 +45,27 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
-import com.quicktrim.MainViewModel
 import com.quicktrim.ai.R
+import com.quicktrim.ai.ui.edit.EditViewModel
 import com.quicktrim.ai.ui.theme.QuicktrimandroidTheme
 
 @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun UpdateFillerWordsScreen(
     modifier: Modifier = Modifier,
-    mainViewModel: MainViewModel,
+    editViewModel: EditViewModel,
     navigator: NavController
 ) {
     QuicktrimandroidTheme {
         Surface {
-            val fillerWords by mainViewModel.fillerWords.collectAsStateWithLifecycle()
+            val fillerWords by editViewModel.fillerWords.collectAsStateWithLifecycle()
             var userText by remember {
                 mutableStateOf(TextFieldValue(""))
             }
 
             fun submit() {
                 if (!userText.text.isEmpty()) {
-                    mainViewModel.onAddFillerWord(userText.text)
+                    editViewModel.onAddFillerWord(userText.text)
                     userText = TextFieldValue("")
                 }
             }
@@ -146,7 +146,7 @@ fun UpdateFillerWordsScreen(
 
                             IconButton(
                                 onClick = {
-                                    mainViewModel.onRemoveFillerWord(fillerWord)
+                                    editViewModel.onRemoveFillerWord(fillerWord)
                                 },
                                 colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
                                 shape = CircleShape

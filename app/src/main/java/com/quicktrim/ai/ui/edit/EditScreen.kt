@@ -3,9 +3,9 @@ package com.quicktrim.ai.ui.edit
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,19 +37,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ToggleButton
 import androidx.compose.material3.ToggleButtonDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.quicktrim.MainViewModel
 import com.quicktrim.ai.R
+import com.quicktrim.ai.domain.model.SegmentedJsonFormat
 import com.quicktrim.ai.ui.Constants
 import com.quicktrim.ai.ui.Routes
 import com.quicktrim.ai.ui.common.QuickTrimErrorDialog
@@ -60,37 +61,50 @@ import com.quicktrim.ai.ui.common.QuickTrimSuccessDialog
 import com.quicktrim.ai.ui.common.SegmentParagraph
 import com.quicktrim.ai.ui.common.SegmentRow
 import com.quicktrim.ai.ui.common.TranscriptionViewMode
+import kotlinx.coroutines.flow.map
 import kotlin.system.exitProcess
+
+private const val TAG = "EditScreen"
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun EditScreen(
+    projectId: Long,
     modifier: Modifier = Modifier,
     navController: NavController,
-    mainViewModel: MainViewModel
+    editViewModel: EditViewModel
 ) {
     val context = LocalContext.current
-    val expandedMode by mainViewModel.expandedMode.collectAsStateWithLifecycle()
-    val isMuted by mainViewModel.isMuted.collectAsStateWithLifecycle()
-    val isPlaying by mainViewModel.isPlaying.collectAsStateWithLifecycle()
-    val progress by mainViewModel.progress.collectAsStateWithLifecycle()
-    val aspectRatio by mainViewModel.aspectRatio.collectAsStateWithLifecycle()
-    val totalDuration by mainViewModel.totalDuration.collectAsStateWithLifecycle()
-    val playerView by mainViewModel.playerView.collectAsStateWithLifecycle()
-    val processState by mainViewModel.processState.collectAsStateWithLifecycle()
-    val error by mainViewModel.error.collectAsStateWithLifecycle()
-    val transcriptionViewMode by mainViewModel.transcriptionViewMode.collectAsStateWithLifecycle()
-    val segmentJsonFormatResponse by mainViewModel.segmentedJsonFormatResponse.collectAsStateWithLifecycle()
+    val expandedMode by editViewModel.expandedMode.collectAsStateWithLifecycle()
+    val isMuted by editViewModel.isMuted.collectAsStateWithLifecycle()
+    val isPlaying by editViewModel.isPlaying.collectAsStateWithLifecycle()
+    val progress by editViewModel.progress.collectAsStateWithLifecycle()
+    val aspectRatio by editViewModel.aspectRatio.collectAsStateWithLifecycle()
+    val totalDuration by editViewModel.totalDuration.collectAsStateWithLifecycle()
+    val playerView by editViewModel.playerView.collectAsStateWithLifecycle()
+    val processState by editViewModel.processState.collectAsStateWithLifecycle()
+    val error by editViewModel.error.collectAsStateWithLifecycle()
+    val transcriptionViewMode by editViewModel.transcriptionViewMode.collectAsStateWithLifecycle()
+    val project by editViewModel.project.collectAsStateWithLifecycle()
+    val segmentJsonFormatResponse by remember {
+        derivedStateOf { project?.segmentedJsonFormat ?: SegmentedJsonFormat() }
+    }
     val transcriptionLoaded by remember {
-        derivedStateOf { segmentJsonFormatResponse.segmentResponses.isNotEmpty() }
+        derivedStateOf { segmentJsonFormatResponse.segments.isNotEmpty() }
     }
     val lazyListState = rememberLazyListState()
+
+    Log.i(TAG, "EditScreen: segmentJsonFormatResponse $segmentJsonFormatResponse")
 
     fun copyToClipboard(context: Context, label: String, text: String) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText(label, text)
         clipboard.setPrimaryClip(clip)
         Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+    }
+
+    LaunchedEffect(true) {
+        editViewModel.initialize(projectId = projectId)
     }
 
     Box(
@@ -115,20 +129,20 @@ fun EditScreen(
                 totalDuration = totalDuration,
                 playerView = { playerView },
                 toggleMuteUnMute = {
-                    mainViewModel.toggleMuteUnMute()
+                    editViewModel.toggleMuteUnMute()
                 },
                 aspectRatio = aspectRatio,
                 onRewind = {
-                    mainViewModel.onRewind()
+                    editViewModel.onRewind()
                 },
                 onForward = {
-                    mainViewModel.onForward()
+                    editViewModel.onForward()
                 },
                 onPlayPause = {
-                    mainViewModel.onTogglePlayPause()
+                    editViewModel.onTogglePlayPause()
                 },
                 toggleExpandMode = {
-                    mainViewModel.toggleExpandMode()
+                    editViewModel.toggleExpandMode()
                 }
             )
             /**
@@ -141,17 +155,17 @@ fun EditScreen(
             /**
              * Segments
              */
-            if (!segmentJsonFormatResponse.segmentResponses.isEmpty()) {
+            if (!segmentJsonFormatResponse.segments.isEmpty()) {
                 when (transcriptionViewMode) {
                     TranscriptionViewMode.PARAGRAPH -> {
                         SegmentParagraph(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(bottom = 56.dp, start = 8.dp, end = 8.dp),
-                            segmentedJsonFormatResponse = segmentJsonFormatResponse,
+                            segmentedJsonFormat = segmentJsonFormatResponse,
                             progressMs = progress,
                             onRemoveOrAddWord = {
-                                mainViewModel.onRemoveOrAddWordResponse(it)
+                                editViewModel.onRemoveOrAddWordResponse(it)
                             },
                         )
                     }
@@ -167,14 +181,14 @@ fun EditScreen(
                                 .padding(bottom = 56.dp),
                             state = lazyListState
                         ) {
-                            items(segmentJsonFormatResponse.segmentResponses) { segment ->
+                            items(segmentJsonFormatResponse.segments) { segment ->
                                 SegmentRow(
-                                    segmentResponse = segment,
+                                    segment = segment,
                                     add = {
-                                        mainViewModel.add(it)
+                                        editViewModel.add(it)
                                     },
                                     remove = {
-                                        mainViewModel.remove(it)
+                                        editViewModel.remove(it)
                                     }
                                 )
                                 HorizontalDivider()
@@ -191,7 +205,7 @@ fun EditScreen(
                 message = it.error.message.orEmpty(),
                 ctaTitle = "RESTART",
                 onClick = {
-                    exitProcess(0)
+                    navController.popBackStack()
                 },
                 onDismissRequest = {}
             )
@@ -223,7 +237,7 @@ fun EditScreen(
                     ) {
                         IconButton(
                             onClick = {
-                                mainViewModel.onTranscriptionViewModelChange(
+                                editViewModel.onTranscriptionViewModelChange(
                                     TranscriptionViewMode.PARAGRAPH
                                 )
                             },
@@ -250,7 +264,7 @@ fun EditScreen(
                     ) {
                         IconButton(
                             onClick = {
-                                mainViewModel.onTranscriptionViewModelChange(
+                                editViewModel.onTranscriptionViewModelChange(
                                     TranscriptionViewMode.SEGMENT
                                 )
                             },
@@ -298,7 +312,7 @@ fun EditScreen(
                         }
                     },
                     onDismissRequest = {
-                        mainViewModel.onExportSuccessDialogDismissRequest()
+                        editViewModel.onExportSuccessDialogDismissRequest()
                     }
                 )
             }

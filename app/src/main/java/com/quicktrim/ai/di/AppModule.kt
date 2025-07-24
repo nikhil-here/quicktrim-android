@@ -1,10 +1,15 @@
 package com.quicktrim.ai.di
 
-import com.quicktrim.ai.transformer.MediaTransformer
-import com.quicktrim.ai.transformer.QuickTrimTransformer
+import android.content.Context
+import androidx.room.Room
+import com.quicktrim.ai.data.local.dao.ProjectDao
+import com.quicktrim.ai.data.local.db.QuickTrimDatabase
+import com.quicktrim.ai.domain.transformer.MediaTransformer
+import com.quicktrim.ai.domain.transformer.QuickTrimTransformer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -16,8 +21,24 @@ class AppModule {
     @Singleton
     fun provideQuickTrimTransformer(
         mediaTransformer: MediaTransformer
-    ) : QuickTrimTransformer {
+    ): QuickTrimTransformer {
         return mediaTransformer
+    }
+
+    @Provides
+    @Singleton
+    fun provideQuickTrimDb(@ApplicationContext context: Context): QuickTrimDatabase {
+        return Room.databaseBuilder(
+            context,
+            QuickTrimDatabase::class.java,
+            "quicktrim_db"
+        ).fallbackToDestructiveMigration(true).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideProjectDao(quickTrimDatabase: QuickTrimDatabase): ProjectDao {
+        return quickTrimDatabase.projectDao()
     }
 
 }

@@ -1,7 +1,6 @@
 package com.quicktrim.ai.ui.common
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,9 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddBox
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,16 +27,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.quicktrim.ai.network.model.SegmentResponse
-import com.quicktrim.ai.network.model.SegmentedJsonFormatResponse
-import com.quicktrim.ai.network.model.WordResponse
+import com.quicktrim.ai.data.remote.model.SegmentRemoteResponse
+import com.quicktrim.ai.data.remote.model.SegmentedJsonFormatRemoteResponse
+import com.quicktrim.ai.data.remote.model.WordRemoteResponse
+import com.quicktrim.ai.domain.model.Segment
+import com.quicktrim.ai.domain.model.SegmentedJsonFormat
+import com.quicktrim.ai.domain.model.Word
 import com.quicktrim.ai.toHMS
 import com.quicktrim.ai.ui.Constants
 import com.quicktrim.ai.ui.theme.QuicktrimandroidTheme
@@ -47,22 +46,22 @@ import com.quicktrim.ai.ui.theme.QuicktrimandroidTheme
 @Composable
 fun SegmentRow(
     modifier: Modifier = Modifier,
-    segmentResponse: SegmentResponse,
-    add: (SegmentResponse) -> Unit,
-    remove: (SegmentResponse) -> Unit
+    segment: Segment,
+    add: (Segment) -> Unit,
+    remove: (Segment) -> Unit
 ) {
-    val start = remember(segmentResponse) {
-        segmentResponse.wordResponses.minBy { it.start }.start.toHMS()
+    val start = remember(segment) {
+        segment.words.minBy { it.start }.start.toHMS()
     }
 
-    val end = remember(segmentResponse) {
-        segmentResponse.wordResponses.maxBy { it.end }.end.toHMS()
+    val end = remember(segment) {
+        segment.words.maxBy { it.end }.end.toHMS()
     }
 
     val annotatedText = buildAnnotatedString {
-        segmentResponse.wordResponses.forEach {
+        segment.words.forEach {
             withStyle(
-                style = if (it.isRemoved || segmentResponse.isRemoved) {
+                style = if (it.isRemoved || segment.isRemoved) {
                     SpanStyle(
                         textDecoration = TextDecoration.LineThrough,
                         color = MaterialTheme.colorScheme.error
@@ -102,10 +101,10 @@ fun SegmentRow(
         }
 
         Box(modifier = Modifier.fillMaxWidth(0.2f), contentAlignment = Alignment.Center) {
-            if (segmentResponse.isRemoved) {
+            if (segment.isRemoved) {
                 IconButton(
                     onClick = {
-                        add(segmentResponse)
+                        add(segment)
                     },
                     colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
                     shape = CircleShape
@@ -119,7 +118,7 @@ fun SegmentRow(
             } else {
                 IconButton(
                     onClick = {
-                        remove(segmentResponse)
+                        remove(segment)
                     },
                     colors = IconButtonDefaults.iconButtonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
                     shape = CircleShape
@@ -140,10 +139,12 @@ fun SegmentRow(
 private fun PreviewSegmentRow() {
     QuicktrimandroidTheme {
         SegmentRow(
-            segmentResponse = SegmentResponse(
+            segment = Segment(
+                id = "",
                 text = "hi its nikhiel",
-                wordResponses = listOf(
-                    WordResponse(
+                words = listOf(
+                    Word(
+                        id = "",
                         start = 0.00,
                         end = 0.00,
                         logprob = 0.11,
@@ -152,7 +153,8 @@ private fun PreviewSegmentRow() {
                         type = "word",
                         isRemoved = false
                     ),
-                    WordResponse(
+                    Word(
+                        id = "",
                         start = 0.00,
                         end = 0.00,
                         logprob = 0.11,
@@ -161,7 +163,8 @@ private fun PreviewSegmentRow() {
                         type = "word",
                         isRemoved = false
                     ),
-                    WordResponse(
+                    Word(
+                        id = "",
                         start = 0.00,
                         end = 0.00,
                         logprob = 0.11,
@@ -170,7 +173,8 @@ private fun PreviewSegmentRow() {
                         type = "",
                         isRemoved = false
                     ),
-                    WordResponse(
+                    Word(
+                        id = "",
                         start = 0.00,
                         end = 0.00,
                         logprob = 0.11,
@@ -179,7 +183,8 @@ private fun PreviewSegmentRow() {
                         type = "",
                         isRemoved = false
                     ),
-                    WordResponse(
+                    Word(
+                        id = "",
                         start = 0.00,
                         end = 0.00,
                         logprob = 0.11,
@@ -206,7 +211,7 @@ private fun PreviewSegmentRow() {
 private fun PreviewRemovedSegmentRow() {
     QuicktrimandroidTheme {
         SegmentRow(
-            segmentResponse = Constants.PREVIEW_SEGMENT,
+            segment = Constants.PREVIEW_SEGMENT,
             add = {
 
             },
@@ -221,8 +226,8 @@ private fun PreviewRemovedSegmentRow() {
 @Composable
 private fun PreviewSegmentRowList() {
     val segment = Constants.PREVIEW_SEGMENT
-    val segments = SegmentedJsonFormatResponse(
-        segmentResponses = (0..5).map { segment }
+    val segments = SegmentedJsonFormat(
+        segments = (0..5).map { segment }
     )
     LazyColumn(
         modifier = Modifier
@@ -233,9 +238,9 @@ private fun PreviewSegmentRowList() {
             )
             .padding(bottom = 56.dp),
     ) {
-        items(segments.segmentResponses) { segment ->
+        items(segments.segments) { segment ->
             SegmentRow(
-                segmentResponse = segment,
+                segment = segment,
                 add = {
 
                 },

@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -18,6 +20,21 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val localProperties = Properties().apply {
+            val localFile = rootProject.file("local.properties")
+            if (localFile.exists()) {
+                load(localFile.inputStream())
+            }
+        }
+
+        buildConfigField("String", "BASE_URL", "\"${localProperties["BASE_URL"]}\"")
+        buildConfigField("String", "API_KEY", "\"${localProperties["API_KEY"]}\"")
+
+
+        buildFeatures {
+            buildConfig = true
+        }
     }
 
     buildTypes {
@@ -86,17 +103,24 @@ dependencies {
     implementation(libs.androidx.material.icons)
     implementation(libs.androidx.material.icons.extended)
 
-    //quick-trim modules
-    implementation(project(":common:network"))
-    implementation(project(":common:utility"))
-    implementation(project(":common:transformer"))
-
-
     //accompanist
     implementation(libs.accompanist.navigation)
 
     //Google Fonts
     implementation(libs.androidx.google.font)
 
+    //Room DB
+    implementation(libs.androidx.room.runtime)
+    kapt(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
+    //gson
+    implementation(libs.gson)
+
+    //retrofit
+    implementation(libs.okhttp)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.converter.scalars)
 
 }

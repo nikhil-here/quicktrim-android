@@ -1,7 +1,6 @@
 package com.quicktrim.ai.ui.common
 
 import android.util.Log
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
@@ -10,30 +9,28 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.quicktrim.ai.network.model.SegmentedJsonFormatResponse
-import com.quicktrim.ai.network.model.WordResponse
+import com.quicktrim.ai.data.remote.model.WordRemoteResponse
+import com.quicktrim.ai.domain.model.SegmentedJsonFormat
+import com.quicktrim.ai.domain.model.Word
 
 private const val TAG = "SegmentParagraph"
 
 @Composable
 fun SegmentParagraph(
     modifier: Modifier = Modifier,
-    segmentedJsonFormatResponse: SegmentedJsonFormatResponse,
+    segmentedJsonFormat: SegmentedJsonFormat,
     progressMs: Long,
-    onRemoveOrAddWord: (WordResponse) -> Unit
+    onRemoveOrAddWord: (Word) -> Unit
 ) {
     Log.i(TAG, "SegmentParagraph: progress $progressMs")
-    val segments = segmentedJsonFormatResponse.segmentResponses
+    val segments = segmentedJsonFormat.segments
 
     val allWords = remember(segments) {
-        segments.flatMap { segment -> segment.wordResponses.map { it.copy(isRemoved = it.isRemoved || segment.isRemoved) } }
+        segments.flatMap { segment -> segment.words.map { it.copy(isRemoved = it.isRemoved || segment.isRemoved) } }
     }
 
     val annotatedText = buildAnnotatedString {
