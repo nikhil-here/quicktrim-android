@@ -6,12 +6,14 @@ sealed class Routes(val path: String) {
         fun withProjectId(id: Long) = "edit/$id"
     }
     data object UpdateFillerWords : Routes(path = "updateFillerWords")
+    data object Login : Routes(path = "login")
 }
 
 fun String?.toAppBarTitle() : String {
     return when(this) {
         Routes.Upload.path -> "Home"
         Routes.Edit.path -> "Trim Media"
+        Routes.Login.path -> "Login"
         else -> "QuickTrim"
     }
 }

@@ -25,6 +25,7 @@ import com.quicktrim.ai.ui.common.QuickTrimAppBar
 import com.quicktrim.ai.ui.edit.EditScreen
 import com.quicktrim.ai.ui.edit.EditViewModel
 import com.quicktrim.ai.ui.fillerwords.UpdateFillerWordsScreen
+import com.quicktrim.ai.ui.login.LoginScreen
 import com.quicktrim.ai.ui.theme.QuicktrimandroidTheme
 import com.quicktrim.ai.ui.upload.UploadScreen
 import dagger.hilt.android.AndroidEntryPoint
@@ -59,9 +60,18 @@ class MainActivity : ComponentActivity() {
                     ) {
                         NavHost(
                             navController = navController,
-                            startDestination = Routes.Upload.path,
+                            startDestination = Routes.Login.path,
                             modifier = Modifier.padding(innerPadding)
                         ) {
+                            composable(
+                                route = Routes.Login.path
+                            ) {
+                                LoginScreen(
+                                    modifier = Modifier,
+                                    navController = navController,
+                                )
+                            }
+
                             composable(
                                 route = Routes.Upload.path
                             ) {
