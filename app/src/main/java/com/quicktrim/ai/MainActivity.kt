@@ -158,6 +158,7 @@ class MainActivity : ComponentActivity() {
                                     UpdateFillerWordsScreen(
                                         editViewModel = editViewModel,
                                         navigator = navController
+                                    )
                                 }
                             }
                         }
