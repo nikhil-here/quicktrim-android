@@ -6,12 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Login
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.LoadingIndicatorDefaults
 import androidx.compose.material3.MaterialTheme
@@ -41,18 +37,17 @@ fun LoginScreen(
 ) {
     val authState by loginViewModel.authState.collectAsStateWithLifecycle()
     val activity = LocalActivity.current
-    LaunchedEffect(true) {
-        loginViewModel.onLoginScreenOpen(activity!!)
-    }
+
     LaunchedEffect(true) {
         loginViewModel.sideEffect.collectLatest { effect ->
-            when(effect) {
+            when (effect) {
                 is LoginScreenSideEffects.Navigate -> {
                     navController.navigate(effect.path)
                 }
             }
         }
     }
+
     LoginScreenUi(
         modifier = Modifier.fillMaxSize(),
         authState = authState,

@@ -64,6 +64,7 @@ class UserRepository @Inject constructor() {
     fun launchSignInBottomSheet(activity: Activity) {
         scope.launch {
             Log.i(TAG, "onGoogleSignInClick: ")
+            if (Firebase.auth.currentUser != null) return@launch
             _authState.update { AuthState.Loading }
             val googleIdOption = GetGoogleIdOption.Builder()
                 .setFilterByAuthorizedAccounts(false)

@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-
 sealed class LoginScreenSideEffects {
     data class Navigate(val path: String) : LoginScreenSideEffects()
 }
@@ -46,9 +45,5 @@ class LoginViewModel @Inject constructor(
 
     fun onGoogleSignInClick(activity: Activity) {
         userRepository.launchSignInFlow(activity)
-    }
-
-    fun onLoginScreenOpen(activity: Activity) {
-        userRepository.launchSignInBottomSheet(activity)
     }
 }
