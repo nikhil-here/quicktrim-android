@@ -9,4 +9,9 @@
     <string name="cd_rewind">Rewind</string>
     <string name="cd_export">Export Trimmed Media</string>
     <string name="cd_filler_words">Add Fillers Words</string>
+    <string name="cd_profile">profile</string>
+    <string name="cta_logout_hero_title">Leaving Already?</string>
+    <string name="web_client_id">493222276558-p62cnfrkcsbacq75e24j0g7to1eeiouu.apps.googleusercontent.com</string>
+    <string name="cta_logout_message">This will log you out of the app. You can always sign in again later.</string>
+    <string name="cta_logout_cta_title">LOGOUT</string>
 </resources>

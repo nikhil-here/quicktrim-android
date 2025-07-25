@@ -9,7 +9,9 @@ import com.quicktrim.ai.domain.model.Project
 import com.quicktrim.ai.domain.model.SegmentedJsonFormat
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class ProjectRepository @Inject constructor(
     private val dao: ProjectDao
 ) {
